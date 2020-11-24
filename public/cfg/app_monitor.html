@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>应用监控管理</title>
+
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/mon_op.js"></script>
+    <script src="../javascripts/util.js"></script>
+</head>
+<body>
+
+<div class="hidden-area">
+
+</div>
+
+<div class="tab_page">
+
+    <div class="panel panel-info" style="width: 100%;">
+        <div class="panel-heading">
+            <h7 class="panel-title">应用黑名单</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div>
+        <h5 style="margin-left: 15px;">隐藏应用列表</h5>
+    </div>
+
+    <div class="panel-body">
+        <div class="normal-frame" id="res_data_id" >
+
+            <!--<div class="multi-media-data-item" id="app_1">
+                <div class="wrap-item-img">
+                    <img src="../images/user3.png">
+                </div>
+                <div class="wrap-item-text">app1</div>
+                <div class="wrap-item-input">
+                    <input type="button" value="取消隐藏" onclick="Javascript:onRemoveItemClick(this);" />
+                </div>
+            </div>
+
+            <div class="multi-media-data-item" id="app_2">
+                <div class="wrap-item-img">
+                    <img src="../images/user3.png">
+                </div>
+                <div class="wrap-item-text">app1</div>
+                <div class="wrap-item-input">
+                    <input type="button" value="取消隐藏" onclick="Javascript:onRemoveItemClick(this);" />
+                </div>
+            </div>-->
+
+        </div>
+
+
+    </div>
+
+</div>
+
+</body>
+
+<script>
+
+    window.onload = function() {
+
+        onGetMonAppFilterDatas();
+    }
+
+    function onGetMonAppFilterDatas() {
+        var reqUrl = getBaseUrl() + '/cfg/app_filter_query';
+        var user_name = getAdministratorName();
+
+        var postData = {
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+           var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                var list = res['list'];
+                onUpdateDatas(list);
+            }
+        });
+    }
+
+    function onUpdateDatas(list) {
+        var innerHtml = '';
+
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            innerHtml += onGetItemHtml(itemData);
+        }
+
+        $("#res_data_id").html(innerHtml);
+    }
+
+    function onGetItemHtml(itemData) {
+        var item_id = itemData.id;
+        var item_name = itemData.name;
+        var item_desc = itemData.desc;
+        var item_size = itemData.size;
+        var item_icon = itemData.icon;
+        var item_remark = itemData.remark;
+
+        // 描述符去掉空格
+        item_desc = utilOnReplace(item_desc, '\u0000', '');
+
+        if (item_remark == null) {
+            item_remark = '';
+        }
+
+        var item_icon_url = onGetStaticAppIconPath() + '/' + item_icon;
+
+        var innerHtml = '';
+
+        innerHtml += '<div class="multi-media-data-item" ';
+        innerHtml += 'id="' + item_id + '" ';
+        innerHtml += 'name="' + item_name + '" ';
+        innerHtml += 'desc="' + item_desc + '" ';
+        innerHtml += 'size="' + item_size + '" ';
+        innerHtml += 'icon="' + item_icon + '" ';
+        innerHtml += 'onMouseOver="Javascript:onWrapItemMouseOver(this);" ';
+        innerHtml += '>';
+
+        innerHtml += '<div class="wrap-item-img"';
+        innerHtml += '>';
+        innerHtml += '<img src="' + item_icon_url + '">';
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-text">';
+        innerHtml += item_desc;
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-input"';
+        innerHtml += '>';
+
+        innerHtml += '<input type="button" ';
+        innerHtml += 'value="取消隐藏" ';
+        innerHtml += 'onclick="Javascript:onCancelHide(this);" ';
+        innerHtml += '/>';
+
+        innerHtml += '</div>';
+
+        innerHtml += '</div>';
+
+        return innerHtml;
+    }
+
+    function onWrapItemMouseOver(elem) {
+        var item_id = elem.getAttribute('id');
+        var item_name = elem.getAttribute('name');
+        var item_desc = elem.getAttribute('desc');
+        var item_size = elem.getAttribute('size');
+
+        var innerTitleHtml = '';
+
+        innerTitleHtml += '<div><h4></h4></div>'
+
+        var innerHtml = '';
+
+        innerHtml += '<table class="table table-condensed" style="margin-top: -10px;margin-bottom: -10px;">';
+
+        innerHtml += '<tbody>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>映像名称：</td>';
+        innerHtml += '<td>' + item_name + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>描述：</td>';
+        innerHtml += '<td>' + item_desc + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>文件大小：</td>';
+        innerHtml += '<td>' + item_size + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '</tbody>';
+
+        innerHtml += '</table>';
+
+        // $("[rel=drevil]").popover
+        $('[name="' + item_name + '"]').popover({
+            trigger:'manual',
+            placement : 'right',
+            title :  innerTitleHtml,
+            html: 'true', //needed to show html of course
+            content : innerHtml,
+            animation: false
+        }).on("mouseover", function () {
+            $(this).popover("show");
+
+        }).on("mouseout", function () {
+            $(this).popover("destroy");
+        });
+    }
+
+    function onCancelHide(elem) {
+        var parent_1_elem = elem.parentNode;
+        var parent_2_elem = parent_1_elem.parentNode;
+
+        var item_id = parent_2_elem.getAttribute('id');
+        var item_name = parent_2_elem.getAttribute('name');
+        var item_desc = parent_2_elem.getAttribute('desc');
+        var item_size = parent_2_elem.getAttribute('size');
+        var item_icon = parent_2_elem.getAttribute('icon');
+
+        var postData = {
+            id: item_id,
+            name: item_name,
+            desc: item_desc,
+            size: item_size,
+            icon: item_icon,
+            status: 0
+        }
+
+        var warning = '确定要取消 ' + item_desc + ' 应用隐藏吗';
+        if (!confirm(warning)) {
+            return false;
+        }
+
+        var reqUrl = getBaseUrl() + '/cfg/app_filter';
+        var user_name = getAdministratorName();
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                parent_2_elem.parentNode.removeChild(parent_2_elem);
+            }
+        })
+    }
+
+</script>
+
+</html>

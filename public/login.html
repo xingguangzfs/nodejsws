@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>一山云平台</title>
+
+    <link href="/stylesheets/login/login.css" rel="stylesheet">
+    <link href="/stylesheets/login/reset.css" rel="stylesheet">
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="/third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="/third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="/third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="/third_part/jquery/jquery.min.js"></script>
+
+    <script src="/third_part/JSON-js-master/json2.js"></script>
+    <script src="/third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="/third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="/third_part/JavaScript-MD5-2.12.0/js/md5.min.js"></script>
+
+    <script src="/javascripts/com_page_op.js"></script>
+    <script src="/javascripts/local_storage.js"></script>
+    <script src="/javascripts/http.js"></script>
+    <script src="/javascripts/util.js"></script>
+    <script type="text/javascript" src="/javascripts/user_login.js"></script>
+
+</head>
+
+<body style="background: #ddd;">
+
+<div class="login-page" >
+    <div class="loginwarrp" >
+        <div class="login_form">
+            <!--<div><span id="info" style="color: red;"></span></div>-->
+            <div class="logo">用户登录</div>
+            <span id="error-msg" class="error"></span>
+            <form id="Login" name="Login" onsubmit="return false" method="post" action="##">
+                <li class="login-item">
+                    <label class="login_label">账  号：</label>
+                    <input type="text" id="username" name="username" class="login_input" >
+                </li>
+                <li class="login-item">
+                    <label class="login_label">密  码：</label>
+                    <input type="password" id="password" name="password" class="login_input" >
+                </li>
+                <li class="login-sub">
+                    <input type="button" id="login_btn" name="Submit" value="登  录" onclick="Javascript:onLoginClick();"  />
+                </li>
+            </form>
+        </div> <!-- end div login_form -->
+
+    </div> <!-- end div loginwarrp -->
+
+</div> <!-- end div page -->
+
+<div class="foot_area" >
+    <div class="rightlight_area" style="text-align: center;">
+        <span style="font-size: 16px;">©2019 一山软件有限公司</span>
+    </div>
+</div>
+
+</body>
+
+<script type="text/javascript">
+
+    window.onload = function() {
+    }
+
+    document.onkeydown = function() {
+        if (event.keyCode == 13) {
+            // 响应回车事件
+            document.getElementById("login_btn").click();
+            return false;
+        }
+    }
+
+    function getZhEncode(value) {
+        return encodeURI(encodeURI(value));
+    }
+
+    function getBaseUrl() {
+        var basePath = window.location.protocol + '//' + window.location.host ;
+        return basePath;
+    }
+
+    function onLogin(force) {
+        // 表单数据追加参数
+
+        //var postData = $.param({force: force}) + "&" + $('#Login').serialize();
+
+        var postData = {};
+
+        var username = $("#username").val();
+        var password = $("#password").val();
+
+        password = utilMd5Encode(password, false);
+
+        postData['force'] = force;
+        postData['username'] = username;
+        postData['password'] = password;
+
+        var reqUrl = getBaseUrl() + "/login";
+
+        httpPostNoTokenRequest3(reqUrl, postData, function(res){
+
+            var status = res['status'];
+            if (status == 1) {
+                // 登录成功
+                // 验证成功
+                var id = res['id'];
+                var name = res['name'];
+                var role = res['role'];
+                var token = res['token'];
+
+                var inited = (isAdministrator(role) ? 1 : 0);
+
+                // 保存信息
+                var user_info = {
+                    is_inited: inited, // 初始化状态
+                    is_fail_warn: 1, // 检测插件失败则发出警告
+                    id: id,
+                    name: name,
+                    role: role,
+                    token: token
+                }
+
+                setUserInfo(name, JSON.stringify(user_info));
+
+                if (isAdministrator(role)) {
+                    // 管理员用户，因为目前只有一个管理员
+                    setAdministratorUserInfo(JSON.stringify(user_info));
+                }
+
+                // 加载首页
+                var reqUrl = "index.html";
+                reqUrl += "?status=1";
+                reqUrl += "&id=" + id;
+                reqUrl += "&name=" + getZhEncode(name);
+                reqUrl += "&role=" + role;
+                reqUrl += "&license=1";
+                window.location.replace(reqUrl);
+            }
+            else if (status == 20) {
+                // 用户已经登录
+                var warn = '此用户已经在其它地方登录，是否确定要在此登录';
+                if (confirm(warn)) {
+                    // 强行登录
+                    onLogin(1);
+                }
+            }
+            else {
+                // 错误
+                var msg = res['msg'];
+                if (status == 2) {
+                    // 用户名或者密码
+                    setInfoMsg(msg);
+                }
+                else if (status == 3 || status == 4 || status == 5) {
+                    //alert(JSON.stringify(res));
+                    // License验证失败
+                    var role = res['role'];
+                    if (role == 'administrator') {
+                        // 跳转到 License 注册页面
+
+                        alert(msg);
+
+                        var id = res['id'];
+                        var name = res['name'];
+                        var role = res['role'];
+                        var token = res['token'];
+
+                        // 保存信息
+                        // 保存信息
+                        var user_info = {
+                            id: id,
+                            name: name,
+                            role: role,
+                            token: token
+                        }
+                        setUserInfo(name, user_info);
+
+                        // 加载License
+                        var reqUrl = "index.html";
+                        reqUrl += "?status=1";
+                        reqUrl += "&id=" + id;
+                        reqUrl += "&name=" + getZhEncode(name);
+                        reqUrl += "&role=" + role;
+                        reqUrl += "&license=0";
+                        window.location.replace(reqUrl);
+                    }
+                    else {
+                        if (status == 3) {
+                            // License验证发生错误
+                            alert(msg);
+                        }
+                        else {
+                            setInfoMsg(msg);
+                        }
+                    }
+                }
+                else {
+                    alert(msg);
+                }
+                return false;
+            }
+        })
+    }
+
+    function onLoginClick() {
+
+        setInfoMsg('');
+
+        checkName();
+        checkPassword();
+
+        var user_name = $("#username").val();
+        var pswd = $("#password").val();
+
+        if (user_name.length < 1 || pswd.length < 1) {
+            return false;
+        }
+
+        // 用户登录
+        onLogin(0);
+
+    }
+
+    function setInfoMsg(msg) {
+        $("#error-msg").html(msg);
+    }
+
+    function gotoLicensePage() {
+        var reqUrl = "license.html";
+        window.location.replace(reqUrl);
+    }
+
+</script>
+
+</html>

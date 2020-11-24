@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>应用图标</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <link href="../selfcomponent/selecter/selecter.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../selfcomponent/selecter/selecter.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/util.js"></script>
+
+</head>
+<body>
+
+<div class="hidden_data_area">
+    <!-- 隐藏用户数据 -->
+    <input type="hidden" id="private_app_icon_id" value="0">
+    <input type="hidden" id="private_app_icon_text" value="">
+    <input type="hidden" id="private_app_icon_status" value="1">
+
+    <!-- 隐藏分页信息 -->
+    <input type="hidden" id="private_page_start_index" value="1">
+    <input type="hidden" id="private_page_index" value="1">
+    <input type="hidden" id="private_page_size" value="20">
+    <input type="hidden" id="private_page_count" value="1">
+    <input type="hidden" id="private_page_btns" value="5">
+
+</div> <!-- end div hidden_data_area -->
+
+<div class="modal fade" id="app_icon_modify_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" id="app_icon_modify_dialog_id" style="width: 400px;">
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">应用图标修改</h4>
+            </div> <!-- end div modal-header -->
+            <div class="modal-body">
+                <form name="app_icon_modify_form" id="app_icon_modify_form_id" method="post" action="">
+
+                    <div class="input-group">
+                        <span class="input-group-addon" id="infoid"  style="color: red;height: 30px;"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">标题：</span>
+                        <input type="text" class="form-control" id="app_icon_text" name="app_icon_text" placeholder="请输入应用程序图标标题" style="width: 240px;">
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+
+                    <div class="input-group" style="display: none;">
+                        <span class="input-group-addon" style="width: 95px;">启用状态：</span>
+                        <select class="form-control" id="app_icon_status" style="width: 240px;">
+                            <option value="启用">启用</option>
+                            <option value="禁用">禁用</option>
+                        </select>
+                    </div>
+
+                </form>
+            </div> <!-- end div modal-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="app_icon_modify_btn" onclick="Javascript:onAppIconModifySubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+        </div> <!-- end div modal-content -->
+    </div>
+</div>
+
+<div class="modal fade" id="app_icon_add_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" id="app_icon_add_dialog_id" style="width: 560px;">
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">应用图标添加</h4>
+            </div> <!-- end div modal-header -->
+            <div class="modal-body">
+                <form name="app_icon_modify_form" id="app_icon_add_form_id" method="post" action="">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="add_infoid"  style="color: red;height: 30px;"></span>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 98px;">图标文件：</span>
+                        <input type="text" class="form-control" id="icon_files" name="icon_files" readonly="readonly"  placeholder="请选择48X48分辨率的PNG图标文件" style="width: 320px;">
+                        <input type="file" class="form-control" id="upload_files" name="upload_files" data-show-preview="false"  accept="image/png">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" id="add_icon_btn" onclick="Javascript:onAddIconFile();" >选择文件</button>
+                        </span>
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 100px;">图标标题：</span>
+                        <input type="text" class="form-control" id="icon_text" name="icon_text" placeholder="请输入应用程序图标标题" style="width: 400px;">
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+
+                </form>
+            </div> <!-- end div modal-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="app_icon_add_btn" onclick="Javascript:onAppIconAddSubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+        </div> <!-- end div modal-content -->
+    </div>
+</div>
+
+<div class="tab_page">
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">应用图标</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="panel-body">
+        <div class="option_area">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" data-toggle="tooltip" title="添加应用图标" onclick="Javascript:onAddAppIconBtnClick();"> + 添加图标</button>
+                </span>
+            </div>
+        </div> <!-- end div option_area -->
+
+        <div class="data_area">
+            <table class="table table-bordered" id="tb_data_id">
+                <caption>图标列表</caption>
+                <thead id="tb_data_head_id">
+                <tr>
+                    <th>序号</th>
+                    <th>图标标题</th>
+                    <th>图标</th>
+                    <th>宽度</th>
+                    <th>高度</th>
+                    <!--<th>启用状态</th>
+                    <th>备注</th>-->
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="tb_data_body_id" class="table_decorate">
+
+                </tbody>
+            </table>
+        </div> <!-- end div data_area -->
+
+        <div class="page_area">
+            <ul class="pagination" id="page_id">
+                <!--<li><a href="#">&laquo;</a> </li>
+                <li><a href="#">1</a> </li>
+                <li><a href="#">2</a> </li>
+                <li><a href="#">&raquo;</a> </li>-->
+            </ul>
+        </div> <!-- end div page_area -->
+
+        <div class="status_area">
+            <label id="status_max_records_id"></label>
+        </div> <!-- end div status_area -->
+
+    </div> <!-- end div panel-body  -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script>
+
+    $('input[id=upload_files]').change(function() {
+        var input_file = $(this).val();
+
+        // 更新图标文件
+        $('#icon_files').val(input_file);
+
+        // 更新图标文本
+        var icon_text = $("#icon_text").val();
+        if (icon_text == undefined || icon_text == null || icon_text == '') {
+            var icon_text_value = utilGetFileName(input_file);
+            document.getElementById('icon_text').value = icon_text_value;
+        }
+
+    });
+
+    window.onload = function() {
+        getAppIconList();
+    }
+
+    function onSetInfoMsg(msg) {
+        $("#infoid").html(msg);
+    }
+
+    function getAppIconList() {
+        var page_index = onGetPrivatePageIndex();
+        var page_size = onGetPrivatePageSize();
+        var page_count = onGetPrivatePageCount();
+        var postData = {
+            page_index: page_index,
+            page_size: page_size,
+            page_count:page_count,
+            time: new Date().getTime(),
+        };
+
+        var reqUrl = getBaseUrl() + '/manage/image_query';
+        var user_name = getAdministratorName();
+
+        httpPostRequest(reqUrl, user_name, postData, function(res) {
+            var status = res['status'];
+
+            var max_count = 0;
+            var total_count = 0;
+            var list = null;
+
+            if (status == 1) {
+                max_count = res['max_count'];
+                total_count = res['total_count'];
+            }
+            else {
+                var msg = res['msg'];
+                alert(msg);
+            }
+
+            if (total_count > 0) {
+                list = res['list'];
+            }
+
+            onUpdateDatas(postData, max_count, total_count, list);
+        });
+    }
+
+    function onUpdateDatas(postData, max_count, total_count, list) {
+        var innerHtml = '';
+
+        // 更新状态栏
+        var statusMaxsRecordsHtml = '记录数：' + max_count;
+        $("#status_max_records_id").html(statusMaxsRecordsHtml);
+
+        // 分页栏
+        var page_index = postData['page_index'];
+        var page_size = postData['page_size'];
+        var page_count = postData['page_count'];
+        var page_btns = onGetPrivatePageBtns();
+
+        onUpdatePagination('page_id', page_index, page_size, page_btns, total_count, max_count, 'onAppIconPaginationBtnClick');
+
+        // 更新应用列表
+        if (list && list.length > 0) {
+            var start_index = (page_index - 1) * page_size;
+            for(var idx = 0; idx < list.length; idx++) {
+                var itemData = list[idx];
+
+                var itemInnerHtml = onGetItemDataHtml(start_index + idx, itemData);
+
+                innerHtml += itemInnerHtml;
+            }
+        }
+
+        $("#tb_data_body_id").html(innerHtml);
+    }
+
+    function onGetItemDataHtml(item_idx, itemData) {
+        var innerHtml = '';
+
+        var item_app_image =  itemData.rfolder + '/' + itemData.file_name;
+        var item_app_image_url = getBaseUrl() + '/' + item_app_image;
+
+        var item_id = itemData.id;
+        var item_text = itemData.text;
+        var item_width = itemData.width;
+        var item_height = itemData.height;
+        var item_enable = itemData.enable;
+        var item_remark = itemData.remark;
+
+        if (item_remark == undefined || item_remark == null) {
+            item_remark = '';
+        }
+
+        var item_enable_text = onGetStatusText(item_enable);
+
+        // 自定义属性
+        var user_data_attr = 'data-id="' + item_id + '" ';
+        user_data_attr += 'data-text="' + item_text + '" ';
+        user_data_attr += 'data-status="' + item_enable + '"';
+
+        innerHtml += '<tr ';
+        innerHtml += 'id="' + item_id + '" ';
+        innerHtml += '>'
+
+        innerHtml += '<td>';
+        innerHtml += (item_idx + 1);
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_text;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += '<img src="' + item_app_image_url + '" ';
+        innerHtml += ' style="cursor:pointer;width:24px;height:24px;"';
+        innerHtml += '>';
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_width;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_height;
+        innerHtml += '</td>';
+
+        //innerHtml += '<td>';
+        //innerHtml += item_enable_text;
+        //innerHtml += '</td>';
+
+        //innerHtml += '<td>';
+        //innerHtml += item_remark;
+        //innerHtml += '</td>';
+
+        innerHtml += '<td style="width: 180px">';
+        // 选项按钮
+        innerHtml += '<input type="button" id="op_modify" ';
+        innerHtml += user_data_attr;
+        innerHtml += ' onclick="JavaScript:appIconListClick(this, 1)" value="修改" />';
+
+        innerHtml += '&nbsp;&nbsp;<input type="button" id="op_del" ';
+        innerHtml += user_data_attr;
+        innerHtml += ' onclick="JavaScript:appIconListClick(this, 2)" value="删除" />';
+
+        innerHtml += '</td>';
+
+        innerHtml += '</tr>';
+
+        return innerHtml;
+    }
+
+    function onAppIconPaginationBtnClick(index) {
+        var page_start_index = onGetPrivatePageStartIndex();
+        var page_btns = onGetPrivatePageBtns();
+
+        if (index == 0) {
+            // 上一页
+            var new_page_start_index = page_start_index - page_btns;
+            if (new_page_start_index < 1) {
+                new_page_start_index = 1;
+            }
+            onSetPrivatePageStartIndex(new_page_start_index);
+            onSetPrivatePageIndex(new_page_start_index);
+        }
+        else if (index == -1) {
+            // 下一页
+            var new_page_start_index = page_start_index + page_btns;
+
+            onSetPrivatePageStartIndex(new_page_start_index);
+            onSetPrivatePageIndex(new_page_start_index);
+        }
+        else {
+            onSetPrivatePageIndex(index);
+        }
+
+        // 重新获取
+        getAppIconList();
+    }
+
+    function appIconListClick(elem, op_idx) {
+        var item_id = elem.getAttribute('data-id');
+        var item_text = elem.getAttribute('data-text');
+        var item_status = elem.getAttribute('data-status');
+
+        // 显示模态对话框
+        if (op_idx == 1) {
+            // 修改
+            utilSetInputValue('private_app_icon_id', item_id);
+            utilSetInputValue('private_app_icon_text', item_text);
+            utilSetInputValue('private_app_icon_status', item_status);
+
+            onSetInfoMsg('');
+            $("#app_icon_modify_modal_dialog").modal();
+
+            onInitModifyDialog();
+
+        }
+        else if (op_idx == 2) {
+            // 删除
+            var warm_msg = '确定要删除 ' + item_text + ' 图标吗？';
+            if (confirm(warm_msg)) {
+                var reqUrl = getBaseUrl() + '/manage/image_security_del';
+                var user_name = getAdministratorName();
+
+                var postData = {};
+                postData['id'] = item_id;
+                postData['time'] = new Date().getTime();
+
+                httpPostRequest(reqUrl, user_name, postData, function(res){
+                    var status = res['status'];
+                    var msg = res['msg'];
+
+                    if (status != 1) {
+                        alert(msg);
+                    }
+                    else {
+                        // 更新
+                        getAppIconList();
+                    }
+                });
+
+            }
+        }
+    }
+
+    function onInitModifyDialog() {
+        var item_text = utilGetInputValue('private_app_icon_text');
+        var item_status = utilGetInputValue('private_app_icon_status');
+
+        utilSetInputValue('app_icon_text', item_text);
+
+        // 初始化主机状态
+        onChangeSelectItem('app_icon_status', onGetStatusText(item_status));
+    }
+
+    function onAppIconModifySubmit() {
+        var item_id = utilGetInputValue('private_app_icon_id');
+        var item_text = utilGetInputValue('app_icon_text');
+        var item_status_text = $("#app_icon_status option:selected").text();
+        var item_status = onGetStatusValue(item_status_text);
+
+        if (item_id == undefined || item_id == null || item_id < 0) {
+            onSetInfoMsg('数据无效');
+            return false;
+        }
+
+        if (item_text == undefined || item_text == null || item_text == '') {
+            onSetInfoMsg('标题不能为空');
+            return false;
+        }
+
+        var private_item_text = utilGetInputValue('private_app_icon_text');
+        var private_item_status = utilGetInputValue('private_app_icon_status');
+
+        if (private_item_text == item_text && private_item_status == item_status) {
+            // 数据没有变化
+            $("#app_icon_modify_modal_dialog").modal('hide');
+            return false;
+        }
+
+        var postData = {};
+        postData['id'] = item_id;
+        postData['text'] = item_text;
+        postData['status'] = item_status;
+        postData['time'] = new Date().getTime();
+
+        var reqUrl = getBaseUrl() + '/manage/image_modify';
+        var user_name = getAdministratorName();
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            // 更新
+            getAppIconList();
+
+            $("#app_icon_modify_modal_dialog").modal('hide');
+        });
+
+    }
+
+    function onAddAppIconBtnClick() {
+        utilSetInputValue('private_app_icon_id', 0);
+        utilSetInputValue('private_app_icon_text', '');
+        utilSetInputValue('private_app_icon_status', 0);
+        $("#app_icon_add_modal_dialog").modal();
+    }
+
+    function onAppIconAddSubmit() {
+        onAddAppIconCommit();
+    }
+
+    function onAddIconFile() {
+        $('input[id=upload_files]').click();
+    }
+
+    function onAddAppIconCommit() {
+        var info_id = 'add_infoid';
+
+        $("#" + info_id).html('');
+
+        var icon_text = $("#icon_text").val();
+        if (icon_text == null || icon_text == undefined || icon_text == '') {
+            $("#" + info_id).html('应用程序图标标题不能为空');
+            return false;
+        }
+
+        var icon_files = $("#icon_files").val();
+        if (icon_files == undefined || icon_files == null || icon_files == '') {
+            $("#" + info_id).html('请选择要添加的应用程序图标文件');
+            return false;
+        }
+
+        // 提交数据
+        var form = document.getElementById('app_icon_add_form_id');
+        var formData = new FormData(form);
+        var reqUrl = getBaseUrl() + '/manage/file_upload';
+        var res_type = 'app_icon';
+
+        formData.append("res_type", res_type);
+
+        var user_name = getAdministratorName();
+
+        $.ajax({
+            url: reqUrl,
+            type: 'post',
+            headers: getHttpTokenHead(user_name),
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                var status = res['status'];
+                var msg = res['msg'];
+
+                if (status != 1) {
+                    alert(msg);
+                    return false;
+                }
+                // 隐藏上传对话框
+                $("#app_icon_add_modal_dialog").modal('hide');
+
+                // 更新数据
+                getAppIconList();
+            },
+            error: function(err) {
+                alert(JSON.stringify(err));
+            }
+
+        });
+
+    }
+
+</script>
+
+</html>

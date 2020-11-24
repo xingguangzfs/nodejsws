@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>应用统计</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../third_part/bootstrap-tab-master/css/bootstrap-tab.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="../third_part/bootstrap-tab-master/js/bootstrap-tab.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../third_part/echarts-4.4.0/dist/echarts.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/statis_op.js"></script>
+    <script src="../javascripts/util.js"></script>
+
+</head>
+<body>
+
+<div class="hidden-area">
+</div>
+
+<div class="tab_page" >
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">应用统计</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="panel-body" >
+        <!-- tab页面 -->
+        <div class="tab-nav" id="tabContainer"></div>
+
+    </div> <!-- end div panel-body -->
+
+</div>
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        // 初始化TAB控制
+        onInitTab();
+    }
+
+    function onInitTab() {
+        // 获取统计周期
+        onGetStatisCycle(function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            var count =res['count'];
+
+            var tab_datas = [];
+
+            if (status == 1 && count > 0) {
+                var list = res['list'];
+                tab_datas = onParseCycle('app_statis_', list);
+
+                // 初始化tab控件
+                var tabElem = $("#tabContainer").tabs({
+                    data: tab_datas,
+                    showIndex: 0, // 默认显示页的索引
+                    loadAll: false
+                });
+
+                // tab页面显示事件
+                $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                    // 获取已激活的标签页的名称
+                    //var activeTab = $(e.target).text();
+                    // 获取前一个激活的标签页的名称
+                    //var previousTab = $(e.relatedTarget).text();
+                    // 获取当前显示页ID
+                    //var tabId = tabElem.getCurrentTabId();
+                    // tab改变时重新更新tab页面数据
+                    onUpdateTabData(tabElem);
+                });
+            }
+        })
+
+    }
+
+</script>
+
+</html>

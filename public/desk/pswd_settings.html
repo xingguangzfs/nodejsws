@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>密码管理</title>
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+    <script src="../third_part/JavaScript-MD5-2.12.0/js/md5.min.js"></script>
+
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/util.js"></script>
+
+    <style>
+        body {
+            width: 380px;
+        }
+
+        .input-group {
+            margin-top: 5px;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="hide-data-area">
+        <input type="hidden" id="private_user_id" value="0">
+        <input type="hidden" id="private_user_name" value="">
+    </div> <!-- end div hide-data-area -->
+
+    <div>
+
+        <form name="modify_form" id="form_id" method="post" action="">
+            <div class="input-group">
+                <span class="input-group-addon" id="infoid" style="color: red;height: 30px;"> </span>
+            </div>
+
+            <div class="input-group">
+                <span class="input-group-addon" style="width: 95px;">输入旧密码：</span>
+                <input type="password" class="form-control" id="oldpswd" name="oldpswd" placeholder="请输入旧密码" style="width: 240px;">
+                <span class="input-group-addon" style="color: red;">*</span>
+            </div>
+
+            <div class="input-group">
+                <span class="input-group-addon" style="width: 95px;">输入新密码：</span>
+                <input type="password" class="form-control" id="pswd" name="pswd" placeholder="请输入新密码" style="width: 240px;">
+                <span class="input-group-addon" style="color: red;">*</span>
+            </div>
+
+            <div class="input-group">
+                <span class="input-group-addon" style="width: 95px;">确认新密码：</span>
+                <input type="password" class="form-control" id="pswd2" name="pswd2" placeholder="请确认新密码" style="width: 240px;">
+                <span class="input-group-addon" style="color: red;">*</span>
+            </div>
+
+            <div class="input-group" style="display: block; float: right;">
+                <button type="button" class="btn btn-primary" id="add_res_btn" onclick="Javascript:onSubmit();" >提交修改</button>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        var user_id =  getQueryString('id');
+        var user_name = getQueryString('name');
+        if (user_id != undefined && user_id > 0) {
+            setPageUserId(user_id);
+        }
+        if (user_name != undefined && user_name != '' && user_name.length > 0) {
+            setPageUserName(user_name);
+        }
+    }
+
+    function onSubmit() {
+        if (!isFieldsValid()) {
+            return false;
+        }
+
+        var user_id = getPageUserId();
+        var user_name = getPageUserName();
+        var old_pswd = $("#oldpswd").val();
+        var new_pswd = $("#pswd").val();
+
+        old_pswd = utilMd5Encode(old_pswd, false);
+        new_pswd = utilMd5Encode(new_pswd, false);
+
+        var postData = {
+            id: user_id,
+            name: user_name,
+            oldpswd: old_pswd,
+            newpswd: new_pswd,
+            time: new Date().getTime()
+        }
+
+        var reqUrl = getBaseUrl() + '/manage/user_pswd_modify';
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            if (status == 1) {
+                $("#oldpswd").val('');
+                $("#pswd").val('');
+                $("#pswd2").val('');
+            }
+            alert(msg);
+        })
+    }
+
+    function isFieldsValid() {
+        // 旧密码
+        if (!onCheckInputItemConfirm('oldpswd')) {
+            $("#infoid").html("旧密码不能为空");
+            return false;
+        }
+
+        // 新密码
+        if (!onCheckInputItemConfirm('pswd')) {
+            $("#infoid").html("新密码不能为空");
+            return false;
+        }
+
+        // 确认新密码
+        if (!onCheckInputItemConfirm('pswd2')) {
+            $("#infoid").html("确认密码不能为空");
+            return false;
+        }
+
+        if ($("#pswd").val() != $("#pswd2").val()) {
+            $("#infoid").html("两次新密码输入不一致");
+            return false;
+        }
+
+        if ($("#oldpswd").val() == $("#pswd").val()) {
+            $("#infoid").html("旧密码与新密码不可以相同");
+            return false;
+        }
+
+        $("#infoid").html("");
+        return true;
+    }
+
+</script>
+
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户日志详情</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/util.js"></script>
+    <script src="../javascripts/log_op.js"></script>
+
+</head>
+<body>
+
+
+<div class="hidden_data_area">
+    <input type="hidden" id="private_id" value="0">
+    <input type="hidden" id="private_level_id" value="0">
+    <input type="hidden" id="private_level_name" value="">
+    <input type="hidden" id="private_event_id" value="0">
+    <input type="hidden" id="private_event_name" value="">
+</div>
+
+<div class="head_area">
+
+</div>
+
+<div class="content_area">
+    <div class="left_side">
+
+    </div>
+
+    <div class="panel panel-default" style="width: 60%;">
+        <div class="panel-heading">
+            <h4 class="panel-title" >
+                <div style="text-align: left;"><span id="tooltip_title_id"></span></div>
+            </h4>
+        </div>
+
+        <div class="panel-body" >
+
+            <table class="table table-striped" id="body_data_id">
+                <!--<tr><td>产品 A</td><td>200</td></tr>
+                <tr><td>产品 B</td><td>400</td></tr>-->
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        var item_id = getQueryString('id');
+        var item_level_id = getQueryString('level_id');
+        var item_level_name = getZhDecode(getQueryString('level_name'));
+        var item_event_id = getQueryString('event_id');
+        var item_event_name = getZhDecode(getQueryString('event_name'));
+
+        $("#private_id").attr('value', item_id);
+        $("#private_level_id").attr('value', item_level_id);
+        $("#private_level_name").attr('value', item_level_name);
+        $("#private_event_id").attr('value', item_event_id);
+        $("#private_event_name").attr('value', item_event_name);
+
+        onGetUserLogDetail();
+
+    }
+
+    function onGetUserLogDetail() {
+        var item_id = $("#private_id").val();
+
+        var reqUrl = getBaseUrl() + '/log/log_user_detail';
+        var user_name = getAdministratorName();
+        var postData = {
+            id: item_id,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            var headHtml = '';
+
+            var bodyHtml = '';
+
+            headHtml = onGetHeadHtml();
+
+            if (status != 1) {
+                //alert(msg);
+            }
+            else {
+                var count = res['count'];
+                var list = res['list'];
+
+                if (list && list.length > 0) {
+                    var data0 = list[0];
+
+                    bodyHtml = onGetItemHtml(data0);
+                }
+
+            }
+
+            $("#tooltip_title_id").html(headHtml);
+
+            $("#body_data_id").html(bodyHtml);
+
+        });
+    }
+
+    function onGetHeadHtml() {
+        var headHtml = '';
+
+        var item_level_id = $("#private_level_id").val();
+        var item_level_name = $("#private_level_name").val();
+        var item_level_img = onGetLogLevelImage(parseInt(item_level_id));
+
+
+        headHtml += '<img src="' + item_level_img + '"';
+        headHtml += ' width="24"';
+        headHtml += ' height=""24';
+        headHtml += ' >';
+        headHtml += '&nbsp;&nbsp;';
+        headHtml += item_level_name;
+
+        return headHtml;
+    }
+
+    function onGetItemHtml(itemData) {
+        var innerHtml = '';
+
+        var item_id = itemData.id;
+        var item_source = itemData.source;
+        var item_event_tm = itemData.event_tm;
+        var item_record_tm = itemData.record_tm;
+        var item_user_name = itemData.user_name;
+        var item_info = itemData.info;
+        var item_detail = itemData.detail;
+        var item_remark = itemData.remark;
+
+        if (item_remark == null) {
+            item_remark = '';
+        }
+
+        var item_level_id = $("#private_level_id").val();
+        var item_level_name = $("#private_level_name").val();
+        var item_level_img = onGetLogLevelImage(parseInt(item_level_id));
+
+        var item_event_id = $("#private_event_id").val();
+        var item_event_name = $("#private_event_name").val();
+
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml('事件名称', item_event_name));
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml('事件来源', item_source));
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml('发生时间', item_event_tm));
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml('记录时间', item_record_tm));
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml('信息', item_info));
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml('事件用户', item_user_name));
+
+        var resDetail = onGetLogDetailText(item_detail);
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml2('详情', resDetail['count'], resDetail['data']));
+
+        innerHtml += onGetSingleTableRowHtml(onGetLogItemHtml2('备注', 8, item_remark));
+
+        return innerHtml;
+
+    }
+
+</script>
+
+</html>

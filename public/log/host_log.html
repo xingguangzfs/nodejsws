@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主机日志</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../third_part/bootstrap-datetimepicker-2.4.4/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="../third_part/bootstrap-datetimepicker-2.4.4/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="../third_part/bootstrap-datetimepicker-2.4.4/js/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/util.js"></script>
+    <script src="../javascripts/log_op.js"></script>
+
+</head>
+<body>
+
+<div class="hidden_data_area">
+    <input type="hidden" id="private_page_start_index" value="1">
+    <input type="hidden" id="private_page_index" value="1">
+    <input type="hidden" id="private_page_size" value="20">
+    <input type="hidden" id="private_page_count" value="1">
+    <input type="hidden" id="private_page_btns" value="5">
+</div>
+
+<div class="tab_page" style="min-height: 40px; ">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">主机日志</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="flex-box" style="margin-top: -10px;">
+
+        <form style="min-width: 400px;">
+
+            <div class="flex-line" style="margin-bottom: 10px;">
+
+                <div class="flex-item">
+                    <div class="input-group" style="width: 200px;">
+                        <span class="input-group-addon" style="width: 80px; height: 32px;">时间</span>
+                        <input type="text" id="start_dt" value="" style="height: 32px; ">
+                    </div>
+                </div>
+
+                <div class="flex-item" style="margin-left: -1px;">
+                    <div class="input-group" style="width: 200px;">
+                        <span class="input-group-addon" style="width: 80px; height: 32px;">&nbsp;至&nbsp;</span>
+                        <input type="text" id="end_dt" value="" style="height: 32px; margin-left: 0px; ">
+                    </div>
+                </div>
+
+                <div class="flex-item" style="margin-left: 15px;">
+                    <div class="input-group" style="width: 375px;">
+                        <span class="input-group-addon" style="width: 80px; height: 32px;">关键词</span>
+                        <input type="text" id="log_key" class="form-control" placeholder="请输入关键词" style="height: 32px; min-width: 120px; ">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" onclick="Javascript:onSearchLogData();" style="margin-left: 15px;height: 32px; width: 100px;">搜  索</button>
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+        </form>
+
+        <div class="flex-solid-line"></div>
+
+        <div class="flex-line">
+            <div class="flex-label">
+                <label>&nbsp;&nbsp;日志级别</label>
+            </div>
+        </div>
+
+        <div class="flex-line" id="log_level">
+        </div>
+
+        <div class="flex-solid-line"></div>
+
+        <div class="flex-line">
+            <div class="flex-label">
+                <label>&nbsp;&nbsp;事件类型</label>
+            </div>
+        </div>
+
+        <div class="flex-line" id="log_event">
+            <!--<div class="flex-item">
+                <span><input type="checkbox">&nbsp;&nbsp;全选</span>
+            </div>
+            <div class="flex-item">
+                <span><input type="checkbox">&nbsp;&nbsp;登录</span>
+            </div>
+            <div class="flex-item">
+                <span><input type="checkbox">&nbsp;&nbsp;更新</span>
+            </div>-->
+
+        </div>
+
+    </div>
+
+    <div class="panel-body">
+
+        <div class="data_area" style="margin-top: -15px;">
+            <table class="table table-bordered" id="tb_data_id">
+                <caption>日志记录列表</caption>
+                <thead id="tb_data_head_id">
+                <tr>
+                    <th>序号</th>
+                    <th>级别</th>
+                    <th>时间</th>
+                    <th>信息</th>
+                    <th>来源</th>
+                    <th>备注</th>
+                    <th>选项</th>
+                </tr>
+                </thead>
+                <tbody id="tb_data_body_id" class="table_decorate">
+
+                </tbody>
+            </table>
+        </div> <!-- end div data_area -->
+
+        <div class="page_area">
+            <ul class="pagination" id="page_id">
+                <!--<li><a href="#">&laquo;</a> </li>
+                <li><a href="#">1</a> </li>
+                <li><a href="#">&raquo;</a> </li>-->
+            </ul>
+        </div> <!-- end div page_area -->
+
+        <div class="status_area">
+            <label id="status_max_records_id"></label>
+        </div> <!-- end div status_area -->
+
+    </div> <!-- end div panel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        // 初始化日期
+        onInitDateInput();
+
+        // 日志级别
+        onGetLogLevel('log_level', 'log_level_checkbox', 'onLogLevelClick');
+
+        // 日志事件
+        onGetLogEvent(20001, 30000, 'log_event', 'log_event_checkbox', 'onLogEventClick');
+
+        // 获取默认日志
+        onSetCheckboxSelected('log_level_checkbox', 0, true);
+        onSetCheckboxSelected('log_event_checkbox', 0, true);
+        onGetFirstLogData(null, null, null);
+    }
+
+    function onLogLevelClick(elem) {
+        var checkbox_name = 'log_level_checkbox';
+        var item_value = elem.getAttribute('value'); // log_level_id
+
+        onSetCheckboxSelected(checkbox_name, item_value, elem.checked);
+
+        onPageResetData(); // 重置分页
+        onGetFirstLogData(null, null, null);
+    }
+
+    function onLogEventClick(elem) {
+        var checkbox_name = 'log_event_checkbox';
+        var item_value = elem.getAttribute('value'); // log_level_id
+
+        onSetCheckboxSelected(checkbox_name, item_value, elem.checked);
+
+        onPageResetData();
+        onGetFirstLogData(null, null, null);
+    }
+
+    function onSearchLogData() {
+        var log_key = $("#log_key").val();
+        var log_level_list = onGetCheckboxSelectedList('log_level_checkbox');
+        var log_event_list = onGetCheckboxSelectedList('log_event_checkbox');
+
+        onPageResetData();
+        onGetFirstLogData(log_key, log_level_list, log_event_list);
+    }
+
+    function onGetNextLogData() {
+        var log_key = $("#log_key").val();
+        var log_level_list = onGetCheckboxSelectedList('log_level_checkbox');
+        var log_event_list = onGetCheckboxSelectedList('log_event_checkbox');
+        onGetFirstLogData(log_key, log_level_list, log_event_list);
+    }
+
+    // onGetFirstLogData : 请求第一页数据
+    function onGetFirstLogData(key, log_level_list, log_event_list) {
+        var reqUrl = getBaseUrl() + '/log/log_host_query';
+        var user_name = getAdministratorName();
+        var postData = {};
+
+        if (utilIsEmpty(key)) {
+            key = $("#log_key").val();
+        }
+
+        if (log_level_list == null || log_level_list == undefined) {
+            log_level_list = onGetCheckboxSelectedList('log_level_checkbox');
+        }
+        if (log_event_list == null || log_event_list == undefined) {
+            log_event_list = onGetCheckboxSelectedList('log_event_checkbox');
+        }
+
+        if (onLogParamIsEmpty(key, log_level_list, log_event_list)) {
+            onUpdateDatas(0, 0, null)
+            return false;
+        }
+
+        // 获取日期
+        onGetInputDate(postData);
+
+        if (!utilIsEmpty(key)) {
+            postData['key'] = key;
+        }
+
+        if (!utilIsEmpty(log_level_list) && (log_level_list.indexOf('0', 0) < 0) && log_level_list.length > 0) {
+            // 不包含0
+            postData['level'] = log_level_list;
+        }
+
+        if (!utilIsEmpty(log_event_list) && (log_event_list.indexOf('0', 0) < 0) && log_event_list.length > 0) {
+            postData['event'] = log_event_list;
+        }
+
+        // 分页
+        postData['page_index'] = onGetPrivatePageIndex();
+        postData['page_size'] = onGetPrivatePageSize();
+        postData['page_count'] = onGetPrivatePageCount();
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            if (status != 1) {
+                onUpdateDatas(0, 0, null);
+
+                alert(msg);
+                return false;
+            }
+            else {
+                var max_count = res['max_count'];
+                var count = res['count'];
+                var list = res['list'];
+
+                onUpdateDatas(max_count, count, list);
+            }
+        });
+    }
+
+    function onUpdateDatas(max_count, count, list) {
+
+        var page_start_index = onGetPrivatePageStartIndex();
+        var page_index = onGetPrivatePageIndex();
+        var page_size = onGetPrivatePageSize();
+        var page_btns = onGetPrivatePageBtns();
+
+        // 数据列表
+        var item_start_index = (page_index - 1) * page_size + 1;
+        var innerHtml = '';
+        if (list != undefined && list != null && list.length > 0) {
+            for (var idx = 0; idx < list.length; idx++) {
+                var itemData = list[idx];
+
+                var lineInnerHtml = onGetTrInnerHtml(item_start_index + idx, itemData);
+
+                innerHtml += lineInnerHtml;
+            }
+        }
+        $("#tb_data_body_id").html(innerHtml);
+
+        // 状态栏
+        $("#status_max_records_id").html('记录数：' + max_count);
+
+        // 分页按钮
+        onPageUpdate('page_id', 'onPageBtnClick', max_count, page_start_index, page_index, page_size, page_btns);
+    }
+
+    function onGetTrInnerHtml(index, itemData) {
+        var item_id = itemData.id;
+        var item_level_id = itemData.level_id;
+        var item_level_name = itemData.level_name;
+        var item_event_id = itemData.event_id;
+        var item_source = itemData.source;
+        var item_event_tm = itemData.event_tm;
+        var item_record_tm = itemData.record_tm;
+        var item_info = itemData.info;
+        var item_remark = itemData.remark;
+
+        var item_level_img = onGetLogLevelImage(item_level_id);
+
+        if (item_remark == undefined || item_remark == null) {
+            item_remark = '';
+        }
+
+        var innerHtml = '';
+
+        innerHtml+= '<tr';
+        innerHtml += ' id="' + item_id + '"';
+        innerHtml += ' level-id="' + item_level_id + '"';
+        innerHtml += ' event-id="' + item_event_id + '"';
+        innerHtml += '>';
+
+        innerHtml += '<td>';
+        innerHtml += index;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += '<img src="' + item_level_img + '" ';
+        innerHtml += 'width="24" ';
+        innerHtml += 'height="24" ';
+        innerHtml += '>';
+        innerHtml += '&nbsp;&nbsp;';
+        innerHtml += item_level_name;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_event_tm;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_info;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_source;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += item_remark;
+        innerHtml += '</td>';
+
+        // 选项
+        innerHtml += '<td>';
+
+        // 选项按钮
+        var user_data_attr = 'user-data-id="' + item_id + '"';
+        user_data_attr += ' user-data-level-id="' + item_level_id + '"';
+        user_data_attr += ' user-data-event-id="' + item_event_id + '"';
+
+        innerHtml += '<input type="button" id="op_detail" ';
+        innerHtml += user_data_attr;
+        innerHtml += ' onclick="JavaScript:onUserOptionClick(this, 1)" value="详细信息" />';
+
+        innerHtml += '</td>';
+
+        innerHtml += '</tr>';
+
+        return innerHtml;
+    }
+
+    function onUserOptionClick(elem, op_idx) {
+        if (op_idx == 1) {
+            var user_data_id = elem.getAttribute('user-data-id');
+
+            var user_data_level_id = elem.getAttribute('user-data-level-id');
+            var level_name = onGetLogLevelNameFromLocal('log_level', user_data_level_id);
+
+            var user_data_event_id = elem.getAttribute('user-data-event-id');
+            var event_name = onGetLogEventNameFromLocal('log_event', user_data_event_id);
+
+            var reqUrl = getBaseUrl() + '/log/host_log_detail.html';
+            reqUrl += '?id=' + user_data_id;
+            reqUrl += '&level_id=' + user_data_level_id;
+            reqUrl += '&level_name=' + getZhEncode(level_name);
+            reqUrl += '&event_id=' + user_data_event_id;
+            reqUrl += '&event_name=' + getZhEncode(event_name);
+
+            window.open(reqUrl);
+        }
+    }
+
+    // onPageBtnClick : 分页点击事件
+    function onPageBtnClick(index) {
+        var page_start_index = onGetPrivatePageStartIndex();
+        //var page_index = onGetPrivatePageIndex();
+        //var page_size = onGetPrivatePageSize();
+        //var page_count = onGetPrivatePageCount();
+        var page_btns = onGetPrivatePageBtns();
+
+        if (index == 0) {
+            // 上一页
+            var new_page_start_index = page_start_index - page_btns;
+            if (new_page_start_index < 1) {
+                new_page_start_index = 1;
+            }
+            onSetPrivatePageStartIndex(new_page_start_index);
+            onSetPrivatePageIndex(new_page_start_index);
+        }
+        else if (index == -1) {
+            // 下一页
+            var new_page_start_index = page_start_index + page_btns;
+
+            onSetPrivatePageStartIndex(new_page_start_index);
+            onSetPrivatePageIndex(new_page_start_index);
+        }
+        else {
+            onSetPrivatePageIndex(index);
+        }
+
+        // 重新检索
+        onGetNextLogData();
+    }
+
+</script>
+
+</html>

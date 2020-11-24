@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>应用监控</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/mon_op.js"></script>
+    <script src="../javascripts/ws_client.js"></script>
+    <script src="../javascripts/util.js"></script>
+</head>
+
+<body>
+
+<style>
+    .tooltip-box {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        min-width: 80px;
+        width: auto;
+        min-height: 40px;
+        height:auto;
+    }
+</style>
+
+<div class="hidden-area">
+    <input type="hidden" id="private_mon_period" value="0">
+</div>
+
+<div class="tab_page" >
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">应用监控</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+
+    <div class="tip-area">
+
+        <div class="tip-line">
+            <div class="tip-column">
+                <div class="tip-item">
+                    <div class="label label-info">用户数量</div>
+                </div>
+                <div class="tip-item">
+                    <div class="label label-primary">运行应用数量</div>
+                </div>
+                <div class="tip-item">
+                    <div class="label label-default">隐藏应用</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel-body" >
+        <div class="normal-frame" id="res_data_id" >
+
+        </div>
+
+    </div> <!-- end div panel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+
+<script>
+
+    // 获取链接地址
+    function onGetMonDatas() {
+        onGetMonServerAddr(function (res) {
+            var status = res['status'];
+            var msg = res['msg'];
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                var data = res['data'];
+
+                var host = onGetMonServerHost();
+                var port = data['port'];
+
+                onStartWebSocket(host, port);
+            }
+
+        });
+    }
+
+    // 启动websocket连接
+    function onStartWebSocket(host, port) {
+        var ws_timer = null;
+        var ws = getWebSocketConnect(host, port);
+        if (ws == null) {
+            //alert('监控初始化失败请重新打开');
+        }
+        else {
+            ws.onopen = function (e) {
+                //alert('websocket connect success');
+                onGetData(ws);
+
+                var mon_period = $("#private_mon_period").val();
+                if (mon_period < 1) {
+                    mon_period = 5;
+                }
+
+                // 启动监控数据获取定时器
+                ws_timer = setInterval(function () {
+
+                    onGetData(ws);
+
+                }, mon_period * 1000);
+
+            }
+
+            ws.onclose = function (e) {
+                if (ws_timer) {
+                    clearInterval(ws_timer);
+                    ws_timer = null;
+                }
+
+                //var strWarm = '连接已经断开，如果需要继续监控，请刷新页面重连';
+                //alert(strWarm);
+            }
+
+            ws.onmessage = function (e) {
+                var strObj = null;
+                try {
+                    strObj = JSON.parse(e.data);
+
+                    onParseMonRecvData(strObj, onUpdateMonAppData);
+                }
+                catch (err) {
+                    // ws.close(); // 关闭连接
+                }
+            }
+
+        }
+    }
+
+    function onGetData(ws) {
+        // 获取主机监控
+        var module_id = onGetDefaultModuleId('mon_app');
+        var reqPacket = onGetMonAppPacket(module_id, 0, null);
+
+        ws.send(JSON.stringify(reqPacket));
+    }
+
+    function onUpdateMonAppData(datas) {
+        // [{"name":"mspaint.exe","desc":";-M<","size":278,"user_count":1,instance_count:1},{"name":"notepad.exe","desc":"<GJB1>","size":387,"user_count":1,"instance_count":1}]
+        //alert(JSON.stringify(datas));
+
+        // 删除过期数据
+        onDeleteDirty(datas);
+
+        // 更新数据
+        for(var idx = 0; idx < datas.length; idx++) {
+            var itemData = datas[idx];
+
+            onUpdateItemData(itemData);
+        }
+    }
+
+    function onDeleteDirty(datas) {
+        var ctrl_id = 'res_data_id';
+
+        var elems = document.getElementById(ctrl_id);
+        var childElems = elems.getElementsByClassName('wrap-item');
+
+        for(var idx = childElems.length - 1; idx >= 0; idx--) {
+            var childNode = childElems[idx];
+
+            if (!childNode.hasAttribute('name') || !childNode.hasAttribute('desc')) {
+                continue;
+            }
+
+            var item_r_name = childNode.getAttribute('name');
+            var item_r_desc = childNode.getAttribute('desc');
+            var item_r_size = childNode.getAttribute('size');
+
+            if (!onIsExist(datas, item_r_name, item_r_desc, item_r_size)) {
+                // 删除
+                elems.removeChild(childNode);
+            }
+        }
+    }
+
+    function onIsExist(list, item_name, item_desc, item_size) {
+        if (list == undefined || list == null || list.length < 1) {
+            return false;
+        }
+
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+            var item_desc = itemData.desc;
+            item_desc = utilOnReplace(item_desc, '\u0000', '');
+
+            if (item_name == itemData.name && item_desc == item_desc && item_size == itemData.size) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function onUpdateItemData(itemData) {
+        var item_name = itemData.name;
+        var item_desc = itemData.desc;
+        var item_size = itemData.size;
+        var item_user_count = itemData.user_count;
+        var item_instance_count = itemData.instance_count;
+
+        item_desc = utilOnReplace(item_desc, '\u0000', '');
+
+        var ctrl_id = 'res_data_id';
+
+        var elems = document.getElementById(ctrl_id);
+
+        var update_elem = null;
+        var childElems = elems.getElementsByClassName('wrap-item');
+
+        for(var idx = 0; idx < childElems.length; idx++) {
+            var childNode = childElems[idx];
+
+            if (!childNode.hasAttribute('name') || !childNode.hasAttribute('desc') || !childNode.hasAttribute('size')) {
+                continue;
+            }
+
+            var item_r_name = childNode.getAttribute('name');
+            var item_r_desc = childNode.getAttribute('desc');
+            var item_r_size = childNode.getAttribute('size');
+
+            if (item_name == item_r_name && item_desc == item_r_desc && item_size == item_r_size) {
+                update_elem = childNode;
+                break;
+            }
+        }
+
+        if (update_elem != null) {
+            // 更新项
+            onUpdateItemElement(update_elem, itemData);
+        }
+        else {
+            // 新增项
+            onCreateItemElement(itemData);
+        }
+
+    }
+
+    function onCreateItemElement(itemData) {
+        var item_name = itemData.name;
+        var item_desc = itemData.desc;
+        var item_size = itemData.size;
+        var item_icon = itemData.icon;
+        var item_user_count = itemData.user_count;
+        var item_instance_count = itemData.instance_count;
+
+        var item_icon_url = onGetStaticAppIconPath() + '/' + item_icon;
+
+        item_desc = utilOnReplace(item_desc, '\u0000', '');
+
+        //
+        var ctrl_id = 'res_data_id';
+
+        // 根节点
+        var wrapFrameElem = document.getElementById(ctrl_id);
+
+        var wrapItemElem = onCreateElement('div', '');
+        wrapItemElem.setAttribute('class', 'wrap-item');
+        wrapItemElem.setAttribute('name', item_name);
+        wrapItemElem.setAttribute('desc', item_desc);
+        wrapItemElem.setAttribute('size', item_size);
+        wrapItemElem.setAttribute('icon', item_icon);
+        wrapItemElem.setAttribute('user_count', item_user_count);
+        wrapItemElem.setAttribute('instance_count', item_instance_count);
+        wrapItemElem.setAttribute('ondblclick', 'Javascript:onWrapItemDbClick(this);');
+        wrapItemElem.setAttribute('onMouseOver', 'Javascript:onWrapItemMouseOver(this);');
+        //wrapItemElem.setAttribute('onMouseOut', 'Javascript:onWrapItemMouseOut(this);');
+
+        var imgInnerHtml = '<img src="' + item_icon_url + '" width="32" height="32">';
+        var wrapItemImgElem = onCreateElement('div', imgInnerHtml);
+        wrapItemImgElem.setAttribute('class', 'wrap-item-img');
+
+        var wrapItemTextElem = onCreateElement('div', item_desc);
+        wrapItemTextElem.setAttribute('class', 'wrap-item-text');
+
+        var inputInnerHtml = '';
+        // 用户个数
+        inputInnerHtml += '<div class="wrap-item-input-column">';
+
+        inputInnerHtml += '<span class="label label-info">' + item_user_count + '</span>';
+
+        inputInnerHtml += '<span class="label label-primary">' + item_instance_count + '</span>';
+
+        inputInnerHtml += '</div>';
+
+        inputInnerHtml += '<div class="wrap-item-input-column">';
+        inputInnerHtml += '</div>';
+
+        inputInnerHtml += '<div class="wrap-item-input-column">';
+        inputInnerHtml += '<span class="label label-default" onclick="Javascript:onHideClick(this);">X';
+        inputInnerHtml += '</span>';
+        inputInnerHtml += '</div>';
+
+        var wrapItemInputElem = onCreateElement('div', inputInnerHtml);
+
+        // 组装
+        wrapItemElem.appendChild(wrapItemImgElem);
+        wrapItemElem.appendChild(wrapItemTextElem);
+        wrapItemElem.appendChild(wrapItemInputElem);
+
+        // 添加到根节点后面
+        wrapFrameElem.appendChild(wrapItemElem);
+    }
+
+    function onUpdateItemElement(elem, itemData) {
+        var item_name = itemData.name;
+        var item_desc = itemData.desc;
+        var item_size = itemData.size;
+        var item_icon = itemData.icon;
+        var item_user_count = itemData.user_count;
+        var item_instance_count = itemData.instance_count;
+
+        item_desc = utilOnReplace(item_desc, '\u0000', '');
+
+        var item_r_user_count = elem.getAttribute('user_count');
+        var item_r_instance_count = elem.getAttribute('instance_count');
+
+        var item_icon_url = onGetStaticAppIconPath() + '/' + item_icon;
+
+        if (item_user_count != item_r_user_count || item_instance_count != item_r_instance_count) {
+            // 直接替换数据
+            elem.setAttribute('user_count', item_user_count);
+            elem.setAttribute('instance_count', item_instance_count);
+
+            // 图片
+            var innerHtml = '<div class="wrap-item-img">';
+            innerHtml += '<img src="' + item_icon_url + '" width="32" height="32">';
+            innerHtml += '</div>';
+
+            // 文本
+            innerHtml += '<div class="wrap-item-text">' + item_desc + '</div>';
+
+            // 状态
+            innerHtml += '<div class="wrap-item-input">';
+
+            innerHtml += '<div class="wrap-item-input-column">';
+
+            innerHtml += '<span class="label label-info">' + item_user_count + '</span>';
+
+            innerHtml += '<span class="label label-primary">' + item_instance_count + '</span>';
+
+            innerHtml += '</div>';
+
+            innerHtml += '<div class="wrap-item-input-column">';
+            innerHtml += '</div>';
+
+            innerHtml += '<div class="wrap-item-input-column">';
+            innerHtml += '<span class="label label-default" onclick="Javascript:onHideClick(this);">X';
+            innerHtml += '</span>';
+            innerHtml += '</div>';
+
+            innerHtml += '</div>';
+
+            elem.innerHTML = innerHtml;
+       }
+    }
+
+    function onWrapItemDbClick(elem) {
+        var item_name = elem.getAttribute('name');
+        var item_desc = elem.getAttribute('desc');
+        var item_size = elem.getAttribute('size');
+        var item_icon = elem.getAttribute('icon');
+
+        if (item_name == undefined || item_name == null || item_name.length < 1) {
+            alert('获取应用名称失败');
+            return false;
+        }
+
+        if (utilIsEmpty(item_desc)) {
+            item_desc = '';
+        }
+        if (utilIsEmpty(item_size)) {
+            item_size = 0;
+        }
+
+        var reqUrl = "app_inst.html";
+        reqUrl += "?name=" + getZhEncode(item_name);
+        reqUrl += "&desc=" + getZhEncode(item_desc);
+        reqUrl += "&size=" + item_size;
+        reqUrl += "&icon=" + getZhEncode(item_icon);
+
+        window.open(reqUrl);
+    }
+
+    function onWrapItemMouseOver(elem) {
+        var item_name = elem.getAttribute('name');
+        var item_desc = elem.getAttribute('desc');
+        var item_size = elem.getAttribute('size');
+        var item_user_count = elem.getAttribute('user_count');
+        var item_instance_count = elem.getAttribute('instance_count');
+
+        var innerTitleHtml = '';
+
+        innerTitleHtml += '<div><h4>双击图标查看详细信息</h4></div>'
+
+        var innerHtml = '';
+
+        innerHtml += '<table class="table table-condensed" style="margin-top: -10px;margin-bottom: -10px;">';
+
+        innerHtml += '<tbody>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>映像名称：</td>';
+        innerHtml += '<td>' + item_name + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>描述：</td>';
+        innerHtml += '<td>' + item_desc + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>用户数量：</td>';
+        innerHtml += '<td>' + item_user_count + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>运行应用数量：</td>';
+        innerHtml += '<td>' + item_instance_count + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '</tbody>';
+
+        innerHtml += '</table>';
+
+        var place_text = onGetPlaceText();
+
+        // $("[rel=drevil]").popover
+        $('[name="' + item_name + '"]').popover({
+            trigger:'manual',
+            placement : place_text,
+            title :  innerTitleHtml,
+            html: 'true', //needed to show html of course
+            content : innerHtml,
+            animation: false
+        }).on("mouseover", function () {
+            $(this).popover("show");
+
+        }).on("mouseout", function () {
+            $(this).popover("destroy");
+        });
+
+    }
+
+    function onWrapItemMouseOut(elem) {
+
+    }
+
+    function onHideClick(elem) {
+        var parent_1_elem = elem.parentNode;
+        var parent_2_elem = parent_1_elem.parentNode;
+        var parent_3_elem = parent_2_elem.parentNode;
+
+        var item_name = parent_3_elem.getAttribute('name');
+        var item_desc = parent_3_elem.getAttribute('desc');
+        var item_size = parent_3_elem.getAttribute('size');
+        var item_icon = parent_3_elem.getAttribute('icon');
+
+        if (utilIsEmpty(item_desc)) {
+            item_desc = '';
+        }
+
+        if (utilIsEmpty(item_size)) {
+            item_size = 0;
+        }
+
+        // 隐藏提示
+        $('[name="' + item_name + '"]').popover("destroy");
+
+        var reqUrl = getBaseUrl() + '/cfg/app_filter';
+        var user_name = getAdministratorName();
+
+        var postData = {
+            name: item_name,
+            desc: item_desc,
+            size: item_size,
+            icon: item_icon,
+            status: 1,
+            time: new Date().getTime()
+        }
+
+        var warning = '确定要隐藏 ' + item_desc + ' 吗';
+        if (!confirm(warning)) {
+            return false;
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+           var status = res['status'];
+            var msg = res['msg'];
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                var data = res['data'];
+                var parent_4_elem = parent_3_elem.parentNode;
+                parent_4_elem.removeChild(parent_3_elem);
+            }
+        });
+    }
+
+    window.onload = function() {
+        $("#tooltip_box_id").hide();
+
+        // 监控周期
+        onGetMonPeriod(function(res) {
+            var status = res['status'];
+            if (status == 1) {
+                var resData = res['data'];
+                var mon_period = resData['mon_period'];
+
+                $("#private_mon_period").attr('value', mon_period);
+            }
+        });
+
+        // 获取监控数据
+        onGetMonDatas();
+    }
+
+    function onGetMonAppList() {
+
+    }
+
+    function onCreateElement(name, value) {
+        var elem = document.createElement(name);
+        elem.innerHTML = value;
+        return elem;
+    }
+
+</script>
+
+</html>

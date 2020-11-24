@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>应用实例</title>
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/mon_op.js"></script>
+
+</head>
+<body>
+
+
+<div class="hidden-area">
+    <input type="hidden" id="private_exe_name", value="">
+    <input type="hidden" id="private_desc" value="">
+    <input type="hidden" id="private_size" value="0">
+    <input type="hidden" id="private_icon" value="">
+    <input type="hidden" id="private_mon_period" value="0">
+</div>
+
+<div class="head_area">
+
+</div>
+
+<div class="content_area">
+    <div class="left_side">
+
+    </div>
+
+    <div class="right_side" style="width: 78%; min-width: 800px;">
+
+        <div class="right_content" >
+
+            <div style="margin: 10px; display: block; float: right;right: 0px;">
+                <a href="Javascript:void(0);" onclick="Javascript:onRefresh();">刷新</a>
+            </div>
+
+            <div class="panel panel-default" >
+                <div class="panel-heading">
+                    <h4 class="panel-title" >
+                        <div style="text-align: center;"><span id="tooltip_title_id"></span></div>
+                    </h4>
+                </div>
+
+                <table class="table table-bordered" id="res_data_id" style="width: 100%;">
+                    <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>进程ID</th>
+                        <th>用户名</th>
+                        <th>所在主机</th>
+                        <th>是否活动</th>
+                        <th>创建时间</th>
+                        <th>应用图标</th>
+                        <th>应用路径</th>
+                    </tr>
+                    </thead>
+                    <tbody id="res_body_data_id" class="table_decorate">
+
+                    </tbody>
+                </table>
+
+            </div>
+
+            <div>
+                <span id="total_count"></span>
+            </div>
+
+        </div> <!-- end div right_content -->
+
+    </div> <!-- end idv right_size -->
+
+</div> <!-- end div content_area -->
+
+<div class="foot_area">
+</div> <!-- end div foot_area -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        var name = getQueryString('name');
+        name = getZhDecode(name);
+
+        var desc = getQueryString('desc');
+        desc = getZhDecode(desc);
+
+        var size = getQueryString('size');
+
+        var icon = getQueryString('icon');
+        icon = getZhDecode(icon);
+
+        $("#private_exe_name").attr('value', name);
+        $("#private_desc").attr('value', desc);
+        $("#private_size").attr('value', size);
+        $("#private_icon").attr('value', icon);
+
+        // 更新标题
+        var title_text = desc;
+        if (title_text == null || title_text == undefined || title_text == "" || title_text.length < 1) {
+            title_text = name;
+        }
+        $("#tooltip_title_id").html(title_text + ' 应用实例');
+
+        onGetAppInstData();
+    }
+
+    function onRefresh() {
+        onGetAppInstData();
+    }
+
+    function onGetAppInstData() {
+        var item_exe_name = $("#private_exe_name").val();
+        var item_desc = $("#private_desc").val();
+        var item_size = $("#private_size").val();
+
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/mon/app_inst_query';
+
+        var postData = {
+            name: item_exe_name,
+            desc: item_desc,
+            size: item_size,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res) {
+            var status = res['status'];
+            if (status != 1) {
+                var msg = res['msg'];
+                alert(msg);
+                return false;
+            }
+
+            var total_count = res['total_count'];
+            if (total_count > 0) {
+                var list = res['list'];
+
+                onUpdateDatas(list);
+            }
+            else {
+                onClearDatas();
+            }
+
+        });
+    }
+
+    function onClearDatas() {
+        var ctrl_id = 'res_data_id';
+
+        // 第 0 行为表格头
+        var table = document.getElementById(ctrl_id);
+        var table_rows = table.rows.length;
+
+        // 删除过期数据
+        for(var idx = table_rows - 1; idx > 0; idx--) {
+            table.deleteRow(idx);
+        }
+
+        var foot_msg = '记录数：0';
+        $("#total_count").html(foot_msg);
+    }
+
+    function onUpdateDatas(list) {
+        // 删除过期数据
+        var ctrl_id = 'res_data_id';
+
+        // 第 0 行为表格头
+        var table = document.getElementById(ctrl_id);
+        var table_rows = table.rows.length;
+
+        // 删除过期数据
+        for(var idx = table_rows - 1; idx > 0; idx--) {
+            var tr = table.rows[idx];
+
+            var item_process_id = tr.getAttribute('pid');
+            var item_ip = tr.getAttribute('ip');
+
+            if (!onIsExist(list, item_process_id, item_ip)) {
+                // 已经过期，删除此行
+                table.deleteRow(idx);
+            }
+        }
+
+        // 更新数据，如果已经存在则更新，不存在则在最后追加
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            onUpdateItemDatas(itemData);
+        }
+
+        // 修正序号
+        table = document.getElementById(ctrl_id);
+        for(var idx = 1; idx < table.rows.length; idx++) {
+            var tr = table.rows[idx];
+
+            var item_r_index = tr.cells[0].innerHTML;
+            if (idx != item_r_index) {
+                tr.cells[0].innerHTML = idx.toString();
+            }
+        }
+
+        var foot_msg = '记录数：' + (table.rows.length - 1);
+        $("#total_count").html(foot_msg);
+    }
+
+    function onUpdateItemDatas(itemData) {
+        var item_process_id = itemData['process_id'];
+        var item_path = itemData['path'];
+        var item_user_name = itemData['user_name'];
+        var item_active = itemData['active'];
+        var item_ip = itemData['ip'];
+        var item_create_time = itemData['create_time'];
+
+        var item_active_text = onGetStatusText(item_active);
+
+        var item_icon = $("#private_icon").val();
+        var item_icon_url = onGetStaticAppIconPath() + '/' + item_icon;
+
+        var table = document.getElementById('res_data_id');
+        var table_rows = table.rows.length;
+
+        var update_index = -1;
+        for(var idx = 1; idx < table_rows; idx++) {
+            var tr = table.rows[idx];
+
+            var item_r_process_id = tr.getAttribute('pid');
+            var item_r_ip = tr.getAttribute('ip');
+
+            if (item_process_id == item_r_process_id && item_ip == item_r_ip) {
+                update_index = idx;
+                break;
+            }
+        }
+
+        if (update_index > 0) {
+            // 更新
+            var table_row = table.rows[update_index];
+
+            table_row.cells[4].innerHTML = item_active_text;
+        }
+        else {
+
+            var iconHtml = '';
+            iconHtml += '<img src="' + item_icon_url + '" width="24" height="24">';
+            // 新增一行
+            var tr=document.createElement("tr");
+            onSetTrAttrValues(tr, itemData);
+
+            var td0 = onCreateElement("td", table.rows.length);
+            var td1 = onCreateElement("td", item_process_id);
+            var td2 = onCreateElement("td", item_user_name);
+            var td3 = onCreateElement("td", item_ip);
+            var td4 = onCreateElement("td", item_active_text);
+            var td5 = onCreateElement("td", item_create_time);
+            var td6 = onCreateElement("td", iconHtml);
+            var td7 = onCreateElement("td", item_path);
+
+            tr.appendChild(td0);
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tr.appendChild(td4);
+            tr.appendChild(td5);
+            tr.appendChild(td6);
+            tr.appendChild(td7);
+
+            var tbody = document.getElementById('res_body_data_id');
+            tbody.appendChild(tr);
+        }
+    }
+
+    function onIsExist(list, process_id, ip) {
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            var item_process_id = itemData['process_id'];
+            var item_ip = itemData['ip'];
+
+            if (process_id == item_process_id && ip == item_ip) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function onSetTrAttrValues(tr, itemData) {
+        var item_process_id = itemData['process_id'];
+        var item_path = itemData['path'];
+        var item_user_name = itemData['user_name'];
+        var item_active = itemData['active'];
+        var item_ip = itemData['ip'];
+        var item_create_time = itemData['create_time'];
+
+        tr.setAttribute('pid', item_process_id);
+        tr.setAttribute('path', item_path);
+        tr.setAttribute('user_name', item_user_name);
+        tr.setAttribute('ip', item_ip);
+    }
+
+    function onCreateElement(name, value) {
+        var elem = document.createElement(name);
+        elem.innerHTML = value;
+        return elem;
+    }
+
+</script>
+
+</html>

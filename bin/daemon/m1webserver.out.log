@@ -1,0 +1,162 @@
+auth dll path: G:\curProject\GZWeb\ws\common\authclient.dll
+2019-11-21 16:59:22 -> child service start count: 2
+www websocket server port: "8090"
+listening port:80 running...
+
+2019-11-21 16:59:22 -> cc_op: "test connect to 127.0.0.1:3390"
+2019-11-21 16:59:22 -> websocket_server: "begin running..."
+2019-11-21 16:59:22 -> child_filter_cc: {"cmdid":1,"id":1,"name":"cc","print_log":true}
+cc connect to 127.0.0.1 : 3390 success...
+2019-11-21 16:59:22 -> parent_filter_cc recv packet: {"cmdid":8001,"id":1,"errno":0,"errmsg":"成功"}
+2019-11-21 16:59:22 -> cc_op: "cc regist complete."
+child execArgv: ["--harmony"]
+2019-11-21 16:59:22 -> child_filter_sch: {"cmdid":1,"id":2,"name":"sch","print_log":true}
+2019-11-21 16:59:22 -> parent_filter_cc recv packet: {"cmdid":8001,"id":2,"errno":0,"errmsg":"成功"}
+2019-11-21 16:59:23 -> websocket_server: "client connect."
+2019-11-21 16:59:23 -> child_filter_wss: "remote client connect."
+2019-11-21 16:59:23 -> child_ws_client: "connect to 127.0.0.1:8090 success."
+2019-11-21 16:59:23 -> child_filter_wss recv data: "{\"cmdid\":1,\"id\":1,\"name\":\"websocket_ws_client\",\"print_log\":true}"
+2019-11-21 16:59:23 -> child_ws_client recv data: "{\"cmdid\":8001,\"id\":1,\"errno\":0,\"errmsg\":\"\"}"
+2019-11-21 16:59:23 -> websocket_server: "client connect."
+2019-11-21 16:59:23 -> child_filter_wss: "remote client connect."
+2019-11-21 16:59:23 -> child_ws_client: "connect to 127.0.0.1:8090 success."
+2019-11-21 16:59:23 -> child_filter_wss recv data: "{\"cmdid\":1,\"id\":1,\"name\":\"websocket_ws_client\",\"print_log\":true}"
+2019-11-21 16:59:23 -> child_ws_client recv data: "{\"cmdid\":8001,\"id\":1,\"errno\":0,\"errmsg\":\"\"}"
+2019-11-21 16:59:59 -> child_ws_client send data: "{\"cmdid\":4,\"id\":0,\"errno\":0,\"errmsg\":\"\",\"count\":0,\"list\":[]}"
+2019-11-21 16:59:59 -> child_filter_wss recv data: "{\"cmdid\":4,\"id\":0,\"errno\":0,\"errmsg\":\"\",\"count\":0,\"list\":[]}"
+2019-11-21 16:59:59 -> cc_op getUserActive strpkt: "1400000000000000012000000800000000000000"
+cc task res: {"status":1,"msg":"获取所有用户活跃信息成功"}
+2019-11-21 16:59:59 -> cc_op: "cc getUserActive complete."
+2019-11-21 16:59:59 -> cc_op recv source data length: 20
+2019-11-21 16:59:59 -> cc_buffer data length: 20
+2019-11-21 16:59:59 -> cc_op recv source data length: 832
+2019-11-21 16:59:59 -> cc_buffer data length: 852
+2019-11-21 16:59:59 -> cc filter packet length: 852
+2019-11-21 16:59:59 -> cc filter packet info : "cmd_len: 852 cmd_ver: 0 cmd_id: 2147491841 format: 8"
+2019-11-21 16:59:59 -> cc_filter: "parseUserActiveData..."
+2019-11-21 16:59:59 -> cc_filter user active count: 8
+2019-11-21 16:59:59 -> cc_filter user active: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 16:59:59 -> child_filter_wss getUserActive result: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 16:59:59 -> child_ws_client recv data: "{\"cmdid\":8004,\"id\":0,\"errno\":0,\"errmsg\":\"成功\",\"count\":8,\"list\":[{\"name\":\"test\",\"count\":0},{\"name\":\"test1\",\"count\":0},{\"name\":\"test2\",\"count\":0},{\"name\":\"test3\",\"count\":0},{\"name\":\"a1\",\"count\":0},{\"name\":\"a2\",\"count\":0},{\"name\":\"a3\",\"count\":0},{\"name\":\"a4\",\"count\":0}]}"
+2019-11-21 16:59:59 -> child_api: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 16:59:59 -> child_filter_sch getUserActive result: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 16:59:59 -> strSql: "SELECT id,user_id,user_name,weight,last_tm,policy_ip_addr,client_ip_addr FROM res_user_session WHERE status=1"
+2019-11-21 16:59:59 -> result: []
+2019-11-21 17:00:17 -> child_ws_client: "close."
+2019-11-21 17:00:17 -> child_ws_client: " will later 10 seconds reconnect..."
+2019-11-21 17:00:17 -> child_ws_client: "close."
+2019-11-21 17:00:17 -> child_ws_client: " will later 10 seconds reconnect..."
+2019-11-21 17:00:17 -> child service: "index:0 name:cc process exit..."
+2019-11-21 17:00:17 -> exit code: 4294967295
+2019-11-21 17:00:17 -> child service: "process will later 10 seconds restart."
+2019-11-21 17:00:17 -> child service: "index:1 name:sch process exit..."
+2019-11-21 17:00:17 -> exit code: 4294967295
+2019-11-21 17:00:17 -> child service: "process will later 10 seconds restart."
+auth dll path: G:\curProject\GZWeb\ws\common\authclient.dll
+2019-11-21 17:00:23 -> child service start count: 2
+www websocket server port: "8090"
+listening port:80 running...
+
+2019-11-21 17:00:23 -> cc_op: "test connect to 127.0.0.1:3390"
+2019-11-21 17:00:23 -> websocket_server: "begin running..."
+2019-11-21 17:00:23 -> child_filter_cc: {"cmdid":1,"id":1,"name":"cc","print_log":true}
+cc connect to 127.0.0.1 : 3390 success...
+2019-11-21 17:00:23 -> cc_op: "cc regist complete."
+2019-11-21 17:00:23 -> parent_filter_cc recv packet: {"cmdid":8001,"id":1,"errno":0,"errmsg":"成功"}
+child execArgv: ["--harmony"]
+2019-11-21 17:00:23 -> child_filter_sch: {"cmdid":1,"id":2,"name":"sch","print_log":true}
+2019-11-21 17:00:23 -> parent_filter_cc recv packet: {"cmdid":8001,"id":2,"errno":0,"errmsg":"成功"}
+2019-11-21 17:00:24 -> websocket_server: "client connect."
+2019-11-21 17:00:24 -> child_filter_wss: "remote client connect."
+2019-11-21 17:00:24 -> child_ws_client: "connect to 127.0.0.1:8090 success."
+2019-11-21 17:00:24 -> child_filter_wss recv data: "{\"cmdid\":1,\"id\":1,\"name\":\"websocket_ws_client\",\"print_log\":true}"
+2019-11-21 17:00:24 -> child_ws_client recv data: "{\"cmdid\":8001,\"id\":1,\"errno\":0,\"errmsg\":\"\"}"
+2019-11-21 17:00:24 -> websocket_server: "client connect."
+2019-11-21 17:00:24 -> child_filter_wss: "remote client connect."
+2019-11-21 17:00:24 -> child_ws_client: "connect to 127.0.0.1:8090 success."
+2019-11-21 17:00:24 -> child_filter_wss recv data: "{\"cmdid\":1,\"id\":1,\"name\":\"websocket_ws_client\",\"print_log\":true}"
+2019-11-21 17:00:24 -> child_ws_client recv data: "{\"cmdid\":8001,\"id\":1,\"errno\":0,\"errmsg\":\"\"}"
+2019-11-21 17:00:59 -> child_ws_client send data: "{\"cmdid\":4,\"id\":0,\"errno\":0,\"errmsg\":\"\",\"count\":0,\"list\":[]}"
+2019-11-21 17:00:59 -> child_filter_wss recv data: "{\"cmdid\":4,\"id\":0,\"errno\":0,\"errmsg\":\"\",\"count\":0,\"list\":[]}"
+2019-11-21 17:00:59 -> cc_op getUserActive strpkt: "1400000000000000012000000800000000000000"
+cc task res: {"status":1,"msg":"获取所有用户活跃信息成功"}
+2019-11-21 17:00:59 -> cc_op: "cc getUserActive complete."
+2019-11-21 17:00:59 -> cc_op recv source data length: 20
+2019-11-21 17:00:59 -> cc_buffer data length: 20
+2019-11-21 17:00:59 -> cc_op recv source data length: 832
+2019-11-21 17:00:59 -> cc_buffer data length: 852
+2019-11-21 17:00:59 -> cc filter packet length: 852
+2019-11-21 17:00:59 -> cc filter packet info : "cmd_len: 852 cmd_ver: 0 cmd_id: 2147491841 format: 8"
+2019-11-21 17:00:59 -> cc_filter: "parseUserActiveData..."
+2019-11-21 17:00:59 -> cc_filter user active count: 8
+2019-11-21 17:00:59 -> cc_filter user active: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:00:59 -> child_filter_wss getUserActive result: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:00:59 -> child_ws_client recv data: "{\"cmdid\":8004,\"id\":0,\"errno\":0,\"errmsg\":\"成功\",\"count\":8,\"list\":[{\"name\":\"test\",\"count\":0},{\"name\":\"test1\",\"count\":0},{\"name\":\"test2\",\"count\":0},{\"name\":\"test3\",\"count\":0},{\"name\":\"a1\",\"count\":0},{\"name\":\"a2\",\"count\":0},{\"name\":\"a3\",\"count\":0},{\"name\":\"a4\",\"count\":0}]}"
+2019-11-21 17:00:59 -> child_api: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:00:59 -> child_filter_sch getUserActive result: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:00:59 -> strSql: "SELECT id,user_id,user_name,weight,last_tm,policy_ip_addr,client_ip_addr FROM res_user_session WHERE status=1"
+2019-11-21 17:00:59 -> result: []
+2019-11-21 17:01:01 -> child_ws_client: "close."
+2019-11-21 17:01:01 -> child_ws_client: " will later 10 seconds reconnect..."
+2019-11-21 17:01:01 -> child_ws_client: "close."
+2019-11-21 17:01:01 -> child_ws_client: " will later 10 seconds reconnect..."
+2019-11-21 17:01:01 -> child service: "index:0 name:cc process exit..."
+2019-11-21 17:01:01 -> exit code: 4294967295
+2019-11-21 17:01:01 -> child service: "process will later 10 seconds restart."
+2019-11-21 17:01:01 -> child service: "index:1 name:sch process exit..."
+2019-11-21 17:01:01 -> exit code: 4294967295
+2019-11-21 17:01:01 -> child service: "process will later 10 seconds restart."
+auth dll path: G:\curProject\GZWeb\ws\common\authclient.dll
+2019-11-21 17:06:20 -> child service start count: 2
+www websocket server port: "8090"
+listening port:80 running...
+
+2019-11-21 17:06:20 -> cc_op: "test connect to 127.0.0.1:3390"
+2019-11-21 17:06:20 -> websocket_server: "begin running..."
+2019-11-21 17:06:20 -> child_filter_cc: {"cmdid":1,"id":1,"name":"cc","print_log":true}
+cc connect to 127.0.0.1 : 3390 success...
+2019-11-21 17:06:20 -> parent_filter_cc recv packet: {"cmdid":8001,"id":1,"errno":0,"errmsg":"成功"}
+2019-11-21 17:06:20 -> cc_op: "cc regist complete."
+child execArgv: ["--harmony"]
+2019-11-21 17:06:20 -> child_filter_sch: {"cmdid":1,"id":2,"name":"sch","print_log":true}
+2019-11-21 17:06:20 -> parent_filter_cc recv packet: {"cmdid":8001,"id":2,"errno":0,"errmsg":"成功"}
+2019-11-21 17:06:21 -> websocket_server: "client connect."
+2019-11-21 17:06:21 -> child_filter_wss: "remote client connect."
+2019-11-21 17:06:21 -> child_ws_client: "connect to 127.0.0.1:8090 success."
+2019-11-21 17:06:21 -> child_filter_wss recv data: "{\"cmdid\":1,\"id\":1,\"name\":\"websocket_ws_client\",\"print_log\":true}"
+2019-11-21 17:06:21 -> child_ws_client recv data: "{\"cmdid\":8001,\"id\":1,\"errno\":0,\"errmsg\":\"\"}"
+2019-11-21 17:06:21 -> websocket_server: "client connect."
+2019-11-21 17:06:21 -> child_filter_wss: "remote client connect."
+2019-11-21 17:06:21 -> child_ws_client: "connect to 127.0.0.1:8090 success."
+2019-11-21 17:06:21 -> child_filter_wss recv data: "{\"cmdid\":1,\"id\":1,\"name\":\"websocket_ws_client\",\"print_log\":true}"
+2019-11-21 17:06:21 -> child_ws_client recv data: "{\"cmdid\":8001,\"id\":1,\"errno\":0,\"errmsg\":\"\"}"
+2019-11-21 17:06:59 -> child_ws_client send data: "{\"cmdid\":4,\"id\":0,\"errno\":0,\"errmsg\":\"\",\"count\":0,\"list\":[]}"
+2019-11-21 17:06:59 -> child_filter_wss recv data: "{\"cmdid\":4,\"id\":0,\"errno\":0,\"errmsg\":\"\",\"count\":0,\"list\":[]}"
+2019-11-21 17:06:59 -> cc_op getUserActive strpkt: "1400000000000000012000000800000000000000"
+cc task res: {"status":1,"msg":"获取所有用户活跃信息成功"}
+2019-11-21 17:06:59 -> cc_op: "cc getUserActive complete."
+2019-11-21 17:06:59 -> cc_op recv source data length: 20
+2019-11-21 17:06:59 -> cc_buffer data length: 20
+2019-11-21 17:06:59 -> cc_op recv source data length: 832
+2019-11-21 17:06:59 -> cc_buffer data length: 852
+2019-11-21 17:06:59 -> cc filter packet length: 852
+2019-11-21 17:06:59 -> cc filter packet info : "cmd_len: 852 cmd_ver: 0 cmd_id: 2147491841 format: 8"
+2019-11-21 17:06:59 -> cc_filter: "parseUserActiveData..."
+2019-11-21 17:06:59 -> cc_filter user active count: 8
+2019-11-21 17:06:59 -> cc_filter user active: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:06:59 -> child_filter_wss getUserActive result: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:06:59 -> child_ws_client recv data: "{\"cmdid\":8004,\"id\":0,\"errno\":0,\"errmsg\":\"成功\",\"count\":8,\"list\":[{\"name\":\"test\",\"count\":0},{\"name\":\"test1\",\"count\":0},{\"name\":\"test2\",\"count\":0},{\"name\":\"test3\",\"count\":0},{\"name\":\"a1\",\"count\":0},{\"name\":\"a2\",\"count\":0},{\"name\":\"a3\",\"count\":0},{\"name\":\"a4\",\"count\":0}]}"
+2019-11-21 17:06:59 -> child_api: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:06:59 -> child_filter_sch getUserActive result: [{"name":"test","count":0},{"name":"test1","count":0},{"name":"test2","count":0},{"name":"test3","count":0},{"name":"a1","count":0},{"name":"a2","count":0},{"name":"a3","count":0},{"name":"a4","count":0}]
+2019-11-21 17:06:59 -> strSql: "SELECT id,user_id,user_name,weight,last_tm,policy_ip_addr,client_ip_addr FROM res_user_session WHERE status=1"
+2019-11-21 17:06:59 -> result: []
+2019-11-21 17:07:06 -> child_ws_client: "close."
+2019-11-21 17:07:06 -> child_ws_client: " will later 10 seconds reconnect..."
+2019-11-21 17:07:06 -> child_ws_client: "close."
+2019-11-21 17:07:06 -> child_ws_client: " will later 10 seconds reconnect..."
+2019-11-21 17:07:06 -> child service: "index:0 name:cc process exit..."
+2019-11-21 17:07:06 -> exit code: 4294967295
+2019-11-21 17:07:06 -> child service: "process will later 10 seconds restart."
+2019-11-21 17:07:06 -> child service: "index:1 name:sch process exit..."
+2019-11-21 17:07:06 -> exit code: 4294967295
+2019-11-21 17:07:06 -> child service: "process will later 10 seconds restart."

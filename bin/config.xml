@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<server>
+		<port>80</port>
+	</server>
+	<database>
+		<host>127.0.0.1</host>
+		<port>3306</port>
+		<dbname>appcloud</dbname>
+		<user>root</user>
+		<password>123456</password>
+		<maxs>10</maxs>
+		<mins>2</mins>
+		<idle_timeout_millis>60000</idle_timeout_millis>
+		<reap_interval_millis>60000</reap_interval_millis>
+		<priority_range>1</priority_range>
+		<log>true</log>
+	</database>
+	<cc>
+		<host>127.0.0.1</host>
+		<port>3390</port>
+	</cc>
+</root>

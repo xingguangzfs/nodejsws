@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>一山云平台 -- 系统管理</title>
+
+    <link href="stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="/third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="/third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="/third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="/third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="/third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="/third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="/javascripts/com_page_op.js"></script>
+    <script src="/javascripts/manage_op.js"></script>
+    <script src="/javascripts/local_storage.js"></script>
+    <script src="/javascripts/http.js"></script>
+
+</head>
+<body>
+
+<div class="hidden_data_area">
+    <input type="hidden" id="select_tab_text_id" name="select_tab_text" value="">
+    <input type="hidden" id="private_user_id" value="0">
+    <input type="hidden" id="private_user_name" value="">
+    <input type="hidden" id="private_license" value="0">
+</div> <!-- end div hidden_data_area -->
+
+<div class="head_area">
+    <nav class="navbar navbar-inverse" role="navigation" >
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="Javascript:void(0);" style="width: 256px;">
+                    <img src="images/m1log32.png" style="height: 32px;display: inline;">&nbsp;&nbsp;<span style="color: white; font-size: small;">一山软件有限公司</span></a>
+            </div> <!-- end div navbar-header -->
+
+            <div style="display: inline;position: absolute;left: 45%;top: 5px;">
+                <span style="color: white;"><h4>云应用软件平台</h4></span>
+            </div>
+
+            <div  style="float: right;">
+                <!--<form class="navbar-form navbar-left" role="search">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="搜索内容">
+                    </div>
+                    <button type="button" class="btn btn-link" onclick="Javascript:onSearchClick();">搜索</button>
+                </form>-->
+                <button type="button" class="btn btn-link navbar-btn" onclick="Javascript:onLogoutClick();" ><span style="color: white;font-size: small;">注销</span></button>
+            </div>
+
+        </div>
+    </nav>
+</div> <!-- end div head_area -->
+
+<div class="content_area">
+    <div class="left_side">
+        <!-- 管理中心折叠面板组 -->
+        <div class="panel-group" id="manager_center_id">
+            <!-- 资源中心面板 -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h5 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#manager_center_id" href="#resource_list_id">资源中心</a>
+                    </h5>
+                </div> <!-- end div panel-heading -->
+                <div id="resource_list_id" class="panel-collapse collapse">
+                    <ul class="list-group" id="resource_list_body">
+                        <li class="list-group-item" id="user_mgr_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">用户管理</a> </li>
+                        <li class="list-group-item" id="host_mgr_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">主机管理</a> </li>
+                        <li class="list-group-item" id="app_mgr_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">应用管理</a> </li>
+
+                        <!--<li class="list-group-item" id="group_mgr_id"><a href="Javascript:void(0);" onclick="Javascript:onManageItemClick(this.innerHTML);">组管理</a> </li>-->
+                        <div class="panel panel-default" id="group_mgr_id">
+                            <div class="panel-heading">
+                                <a class="root-link-node" data-toggle="collapse" data-parent="#app_mgr_id" href="#resource_host_list_id" >&nbsp;+&nbsp;组管理</a>
+                            </div>
+                            <div id="resource_host_list_id" class="panel-collapse collapse">
+                                <ul class="sub-list-group" id="resource_host_list_body">
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >用户组</a> </li>
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >应用组</a> </li>
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >主机组</a> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!--<li class="list-group-item"><a href="Javascript:void(0);" onclick="Javascript:onManageItemClick(this.innerHTML);">授权管理</a> </li>-->
+                        <div class="panel panel-default" id="auth_mgr_id">
+                            <div class="panel-heading">
+                                <a class="root-link-node" data-toggle="collapse" data-parent="#app_mgr_id" href="#resource_auth_list_id" >&nbsp;+&nbsp;授权管理</a>
+                            </div>
+                            <div id="resource_auth_list_id" class="panel-collapse collapse">
+                                <ul class="sub-list-group" id="resource_auth_list_body">
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >授权主机</a> </li>
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >授权应用</a> </li>
+                                   </ul>
+                            </div>
+                        </div>
+
+                    </ul>
+                </div>
+            </div> <!-- end div panel -->
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#manager_center_id" href="#mon_list_id">监控中心</a>
+                    </h4>
+                </div>
+                <div id="mon_list_id" class="panel-collapse collapse">
+                    <ul class="list-group" id="mon_list_body">
+                        <li class="list-group-item" id="user_mon_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">用户监控</a> </li>
+                        <li class="list-group-item" id="host_mon_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">主机监控</a> </li>
+                        <li class="list-group-item" id="app_mon_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">应用监控</a> </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#manager_center_id" href="#statis_list_id">统计中心</a>
+                    </h4>
+                </div>
+                <div id="statis_list_id" class="panel-collapse collapse">
+                    <ul class="list-group" id="statis_list_body">
+                        <li class="list-group-item" id="user_statis_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">用户统计</a> </li>
+                        <li class="list-group-item" id="host_statis_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">主机统计</a> </li>
+                        <li class="list-group-item" id="app_statis_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">应用统计</a> </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#manager_center_id" href="#log_list_id">日志中心</a>
+                    </h4>
+                </div>
+                <div id="log_list_id" class="panel-collapse collapse">
+                    <ul class="list-group" id="log_list_body">
+                        <li class="list-group-item" id="admin_log_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">管理员日志</a> </li>
+                        <li class="list-group-item" id="user_log_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">用户日志</a> </li>
+                        <li class="list-group-item" id="as_log_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">主机日志</a> </li>
+                        <li class="list-group-item" id="app_log_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">应用日志</a> </li>
+                        <!--<li class="list-group-item" id="cloud_log_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">云盘日志</a> </li>-->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 设置 -->
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#manager_center_id" href="#syscfg_list_id">设置中心</a>
+                    </h4>
+                </div>
+                <div id="syscfg_list_id" class="panel-collapse collapse">
+                    <ul class="list-group" id="syscfg_list_body">
+                        <li class="list-group-item" id="sys_license"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">软件注册</a> </li>
+                        <li class="list-group-item" id="cfg_global"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">系统设置</a> </li>
+                        <li class="list-group-item" id="cfg_ws"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">WEB设置</a> </li>
+                        <!--<li class="list-group-item" id="cfg_user_access_id"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">用户设置</a> </li>-->
+                        <li class="list-group-item" id="cfg_as"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">主机设置</a> </li>
+                        <!--<li class="list-group-item" id="cfg_app"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">应用设置</a> </li>-->
+                        <div class="panel panel-default" id="app_setting_id">
+                            <div class="panel-heading">
+                                <a class="root-link-node" data-toggle="collapse" data-parent="#cfg_as" href="#resource_app_setting_list_id" >&nbsp;+&nbsp;应用设置</a>
+                            </div>
+                            <div id="resource_app_setting_list_id" class="panel-collapse collapse">
+                                <ul class="sub-list-group" id="resource_app_setting_list_body">
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >应用黑名单</a> </li>
+                                    <li class="sub-list-group-item"><a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;" >应用图标</a> </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </ul>
+                </div>
+            </div> <!-- end div panel -->
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <!--<a data-toggle="collapse" data-parent="#manager_center_id" href="download.html">软件下载</a>-->
+                        <a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">下载中心</a>
+                    </h4>
+                </div>
+            </div> <!-- end div panel -->
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <!--<a data-toggle="collapse" data-parent="#manager_center_id" href="download.html">软件下载</a>-->
+                        <a href="javascript:void(0);" onclick="javascript:onManageItemClick(this.innerHTML);return false;">联系我们</a>
+                    </h4>
+                </div>
+            </div> <!-- end div panel -->
+
+        </div> <!-- end div resource_center_id -->
+    </div> <!-- end div left_side -->
+
+    <div class="right_side">
+        <div class="right_content">
+            <div class="tab-content" id="tab_content_id" >
+
+            </div> <!-- end div tab-content -->
+        </div> <!-- end div right_content -->
+    </div> <!-- end idv right_size -->
+
+</div> <!-- end div content_area -->
+
+<div class="foot_area">
+
+</div> <!-- end div foot_area -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        var user_id = getQueryString('id');
+        var user_name = getQueryString('name');
+        var license = getQueryString('license');
+
+        if (user_id > 0) {
+            setPageUserId(user_id);
+        }
+        if (user_name != undefined && user_name != null && user_name != '' && user_name.length > 0) {
+            setPageUserName(user_name);
+        }
+
+        setPageLicense(license);
+
+        var tab_item_text = '软件注册'
+
+        if (license > 0) {
+            tab_item_text = onGetLastSelectText();
+            //tab_item_text = $("#select_tab_text_id").val();
+            if (tab_item_text == undefined || tab_item_text == null || tab_item_text.length < 1) {
+                tab_item_text = '用户管理';
+            }
+        }
+        else {
+
+        }
+        onManageItemClick(tab_item_text);
+
+    }
+
+    function onUpdateLicense(license) {
+        setPageLicense(license);
+    }
+
+    $(window).resize(function(){
+        // 窗口变化事件
+        var page_width = getInnerWidth();
+        var page_height = getInnerHeight();
+
+        var tb_content_component = document.getElementById('tab_content_id');
+        tb_content_component.style.width = (page_width - 220) + 'px';
+        tb_content_component.style.height = (page_height - 120) + 'px';
+    })
+
+    function onManageItemClick(e) {
+        // '<object type="text/html" data="new.html" width="100%" height="100%"></object>';
+        var page_width = getInnerWidth();
+        var page_height = getInnerHeight();
+
+        var tb_content_component = document.getElementById('tab_content_id');
+        tb_content_component.style.width = (page_width - 220) + 'px';
+        tb_content_component.style.height = (page_height - 120) + 'px';
+
+        var interHtml = "";
+        var interData = "";
+
+        var license = getPageLicense();
+
+        if (license == 0 && e != '软件注册') {
+            return false;
+        }
+
+        if (e == "用户管理") {
+            interData =
+            interHtml = '<object type="text/html" data="manage/user_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "应用管理") {
+            interHtml = '<object type="text/html" data="manage/app_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "主机管理") {
+            interHtml = '<object type="text/html" data="manage/host_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '用户组') {
+            interHtml = '<object type="text/html" data="manage/user_group_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '应用组') {
+            interHtml = '<object type="text/html" data="manage/app_group_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '主机组') {
+            interHtml = '<object type="text/html" data="manage/host_group_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "授权应用") {
+            interHtml = '<object type="text/html" data="manage/app_auth_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "授权主机") {
+            interHtml = '<object type="text/html" data="manage/host_auth_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '用户监控') {
+            interHtml = '<object type="text/html" data="mon/user_monitor.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '主机监控') {
+            interHtml = '<object type="text/html" data="mon/host_monitor.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '应用监控') {
+            interHtml = '<object type="text/html" data="mon/app_monitor.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '用户统计') {
+            interHtml = '<object type="text/html" data="statis/user_statis.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '主机统计') {
+            interHtml = '<object type="text/html" data="statis/host_statis.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '应用统计') {
+            interHtml = '<object type="text/html" data="statis/app_statis.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '管理员日志') {
+            interHtml = '<object type="text/html" data="log/admin_log.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '用户日志') {
+            interHtml = '<object type="text/html" data="log/user_log.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '主机日志') {
+            interHtml = '<object type="text/html" data="log/host_log.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '应用日志') {
+            interHtml = '<object type="text/html" data="log/app_log.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '云盘日志') {
+            interHtml = '<object type="text/html" data="log/cloud_log.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "软件注册") {
+            interHtml = '<object type="text/html" data="license.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "系统设置") {
+            interHtml = '<object type="text/html" data="cfg/global.html" width="100%" height="100%"></object>';
+        }
+        else if (e == 'WEB设置') {
+            interHtml = '<object type="text/html" data="cfg/ws.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '用户设置') {
+            interHtml = '<object type="text/html" data="cfg/user_access.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '主机设置') {
+            interHtml = '<object type="text/html" data="cfg/host.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '应用黑名单') {
+            interHtml = '<object type="text/html" data="cfg/app_monitor.html" width="100%" height="100%"></object>';
+        }
+        else if (e == "应用图标") {
+            interHtml = '<object type="text/html" data="cfg/app_icon_manage.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '权限设置') {
+            interHtml = '<object type="text/html" data="cfg/access_type2.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '下载中心') {
+            interHtml = '<object type="text/html" data="download.html" width="100%" height="100%"></object>';
+        }
+        else if (e == '联系我们') {
+            interHtml = '<object type="text/html" data="about.html" width="100%" height="100%"></object>';
+        }
+        else {
+            //alert(JSON.stringify(e));
+        }
+
+        // 更新内容
+        if (interHtml.length > 0) {
+            $("#tab_content_id").html(interHtml);
+
+            // 更新最后选中TAB项
+            if (e.length > 0) {
+                //$("#select_tab_text_id").attr('value', e);
+                onSelectNav(e);
+                onSetLastSelectText(e);
+            }
+
+        }
+    }
+
+    function onLogoutClick() {
+        // 清理最后选项缓存
+        onSetLastSelectText('');
+
+        var logout_timer = setTimeout(function(){
+            var user_name = getAdministratorName();
+
+            // 用户注销
+            onLogout(user_name);
+            // 重定向到登录
+            redirectToLogin();}, 1000);
+    }
+
+    function onSetLastSelectText(text) {
+        var key = 'admin_manage_select_key';
+        setLocalStorage(key, text);
+    }
+
+    function onGetLastSelectText() {
+        var key = 'admin_manage_select_key';
+        return getLocalStorage(key);
+    }
+
+    function onSelectNav(item_text) {
+        var resource_id = 'resource_list_id';
+        var resource_item_list = ['资源中心','用户管理','主机管理','应用管理','组管理','用户组','应用组','主机组','授权管理','授权主机','授权应用'];
+
+        var mon_id = 'mon_list_id';
+        var mon_item_list = ['监控中心','用户监控','主机监控','应用监控'];
+
+        var statis_id = 'statis_list_id';
+        var statis_item_list = ['统计中心', '用户统计','主机统计','应用统计'];
+
+        var log_id = 'log_list_id';
+        var log_item_list = ['日志中心','管理员日志','用户日志','主机日志','应用日志'];
+
+        var syscfg_id = 'syscfg_list_id';
+        var syscfg_item_list = ['设置中心','软件注册','系统设置','WEB设置','主机设置','应用设置','应用黑名单','应用图标'];
+
+        var download_item_list = ['下载中心'];
+
+        var index = onFindItemInList(item_text, resource_item_list);
+        if (index >= 0) {
+            $('#' + resource_id).collapse('show')
+            return;
+        }
+
+        index = onFindItemInList(item_text, mon_item_list);
+        if (index >= 0) {
+            $('#' + mon_id).collapse('show')
+            return;
+        }
+
+        index = onFindItemInList(item_text, statis_item_list);
+        if (index >= 0) {
+            $('#' + statis_id).collapse('show')
+            return;
+        }
+
+        index = onFindItemInList(item_text, log_item_list);
+        if (index >= 0) {
+            $('#' + log_id).collapse('show')
+            return;
+        }
+
+        index = onFindItemInList(item_text, syscfg_item_list);
+        if (index >= 0) {
+            $('#' + syscfg_id).collapse('show')
+            return;
+        }
+
+        index = onFindItemInList(item_text, download_item_list);
+        if (index >= 0) {
+            return;
+        }
+    }
+
+    function onFindItemInList(item, list) {
+        if (item && list && list.length > 0) {
+            for(var idx = 0; idx < list.length; idx++) {
+                if (item === list[idx]) {
+                    return idx;
+                }
+            }
+        }
+        return -1;
+    }
+
+</script>
+
+</html>

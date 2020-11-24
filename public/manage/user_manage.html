@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+    <script src="../third_part/javascript-md5-2.12.0/js/md5.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/cfg_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/util.js"></script>
+
+</head>
+<body>
+
+<div class="hidden_data_area">
+    <!-- 隐藏用户数据 -->
+    <input type="hidden" id="private_user_id" value="0">
+    <input type="hidden" id="private_user_name" value="">
+    <input type="hidden" id="private_user_alias" value="">
+    <input type="hidden" id="private_user_group_id" value="">
+    <input type="hidden" id="private_user_weight" value="1">
+    <input type="hidden" id="private_user_status" value="0">
+    <input type="hidden" id="private_user_remark" value="">
+    <input type="hidden" id="private_modify_pswd" value="0">
+
+    <!-- 隐藏分页信息 -->
+    <input type="hidden" id="private_page_start_index" value="1">
+    <input type="hidden" id="private_page_index" value="1">
+    <input type="hidden" id="private_page_size" value="20">
+    <input type="hidden" id="private_page_count" value="1">
+    <input type="hidden" id="private_page_btns" value="5">
+
+</div> <!-- end div hidden_data_area -->
+
+<!-- 用户对话框 -->
+<div class="modal fade" id="user_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog" id="user_dialog_id" style="width: 450px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">用户设置</h4>
+            </div> <!-- end div modal-header -->
+            <div class="modal-body">
+                <form name="add_user_form" id="user_form_id" method="post" action="" autocomplete="off">
+
+                <div class="input-group">
+                    <span class="input-group-addon" id="infoid" style="color: red;height: 30px;"> </span>
+                </div>
+
+                <div class="input-group" >
+                    <span class="input-group-addon">用户名称：</span>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名称">
+                    <span class="input-group-addon" style="color: red;">*</span>
+                </div>
+                <div class="input-group" name="normal_frame">
+                    <span class="input-group-addon">用户昵称：</span>
+                    <input type="text" class="form-control" id="useralias" name="useralias" placeholder="请输入用户昵称" style="width: 290px">
+                </div>
+                <div class="input-group" name="pswd_frame">
+                    <span class="input-group-addon">登录密码：</span>
+                    <input type="password" class="form-control" id="pswd" name="pswd" placeholder="请输入登录密码">
+                    <span class="input-group-addon" style="color: red;">*</span>
+                </div>
+                <div class="input-group" name="pswd_frame">
+                    <span class="input-group-addon">验证密码：</span>
+                    <input type="password" class="form-control" id="pswd2" name="pswd2" placeholder="请再次输入登录密码">
+                    <span class="input-group-addon" style="color: red;">*</span>
+                </div>
+                <div class="input-group" name="normal_frame" id="user_status_frame">
+                    <span class="input-group-addon" style="width: 95px;">启用状态：</span>
+                    <select class="form-control" id="user_status" style="width: 290px;">
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+                <div class="input-group" name="normal_frame">
+                    <span class="input-group-addon" style="width: 95px;">所属组：</span>
+                    <select class="form-control" id="user_group_id" style="width: 290px;">
+                        <option>无</option>
+                    </select>
+                </div>
+                <div class="input-group" name="normal_frame" id="user_access_frame">
+                    <span class="input-group-addon" style="width: 95px;">用户权限：</span>
+                    <!-- 用户权限列表 -->
+                    <div style="width: 290px; min-height: 32px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border: solid 1px #C3C3C3;">
+                        <div class="option-row" id="user_access" style="margin-top: 5px; margin-bottom: 5px;"></div>
+                    </div>
+                </div>
+                <div class="input-group" name="normal_frame">
+                    <span class="input-group-addon" style="width: 95px;">备注：</span>
+                    <textarea class="form-control" rows="5" id="remark" name="remark" style="width: 290px;"></textarea>
+                </div>
+
+                </form>
+            </div> <!-- end div modal-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add_user_btn" onclick="Javascript:onUserDialogSubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+        </div> <!-- end div modal-content -->
+    </div>
+</div>
+
+<!-- 批量导入对话框 -->
+<div class="modal fade" id="batch_user_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true" >
+    <div class="modal-dialog" style="width: 90%;">
+        <div class="modal-content" style="height: 800px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <!--<h4 class="modal-title" id="auto_add_host">自动发现</h4>-->
+
+                <div class="option_area">
+                    <h4 class="modal-title" id="auto_add_host">批量导入</h4>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" checked="checked" onclick="Javascript:onSelectAllClick(this);" style="margin-top: 6px;"><span style="margin-top: 3px;">&nbsp;全选</span>
+
+                </div>
+
+            </div>
+            <div class="modal-body" style="height: 680px;">
+
+                <div class="auto-wrap-frame" id="res_data_id">
+
+                    <!--<div class="wrap-item">
+                        <div class="wrap-item-img">
+                            <img src="../images/user.png">
+                        </div>
+                        <div class="wrap-item-text">
+                            张三(张三)
+                        </div>
+                        <div class="wrap-item-input">
+                            <input type="checkbox" name="inside" value="" />
+                        </div>
+                    </div>
+
+                    <div class="wrap-item">
+                        <div class="wrap-item-img">
+                            <img src="../images/user.png">
+                        </div>
+                        <div class="wrap-item-text">
+                            李四(李四)
+                        </div>
+                        <div class="wrap-item-input">
+                            <input type="checkbox" name="inside" value="" />
+                        </div>
+                    </div>-->
+
+                </div> <!-- end div auto-wrap-frame -->
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="Javascript:onBatchLoadSubmit();">提交</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
+<div class="tab_page">
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">用户管理</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="panel-body">
+        <div class="option_area">
+            <div class="input-group" style="width: 90px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" id="btn_user_add" data-toggle="tooltip" title="添加一个新用户" onclick="Javascript:onAddUserBtnClick();"> + 添加用户</button>
+                </span>
+            </div>
+
+            <div class="input-group" style="margin-left: 10px; width: 90px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" data-toggle="tooltip" title="导入一个csv用户列表文件，一个用户名称占一行，默认登录密码为123456" > + 批量导入
+                        <input type="file" id="load_file" accept=".csv,text/csv" onchange="Javascript:onBatchLoadChange();" style="position:absolute; right:0px; top:0px; width: 90px; height: 32px; opacity:0;">
+                    </button>
+                </span>
+            </div>
+
+        </div> <!-- end div option_area -->
+
+        <div class="data_area">
+            <table class="table table-bordered" id="tb_data_id">
+                <caption>用户列表</caption>
+                <thead id="tb_data_head_id">
+                    <tr>
+                        <th>序号</th>
+                        <th>用户名</th>
+                        <th>别名</th>
+                        <th>启用状态</th>
+                        <th>所属组</th>
+                        <th>备注</th>
+                        <th>选项</th>
+                    </tr>
+                </thead>
+                <tbody id="tb_data_body_id" class="table_decorate">
+                </tbody>
+            </table>
+        </div> <!-- end div data_area -->
+
+        <div class="page_area">
+            <ul class="pagination" id="page_id">
+                <!--<li><a href="#">&laquo;</a> </li>
+                <li><a href="#">1</a> </li>
+                <li><a href="#">2</a> </li>
+                <li><a href="#">&raquo;</a> </li>-->
+            </ul>
+        </div>
+
+        <div class="status_area">
+             <label id="status_max_records_id"></label>
+        </div> <!-- end div status_area -->
+
+    </div> <!-- end div panel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        // 获取用户列表
+        onGetUserList();
+
+        // 获取允许添加用户标志
+        onGetAllowAddUser();
+    }
+
+    // 用户信息模态对话框初始化
+    $("#user_modal_dialog").on('show.bs.modal', function () {
+        var group_id = 0;
+        var status = 1;
+        var user_name = '';
+        // 获取私有数据
+        var user_id = $("#private_user_id").attr('value'); // 用户ID
+        var modify_pswd = $("#private_modify_pswd").attr('value'); // 修改密码标记
+
+        if (user_id > 0) {
+            // 修改用户信息
+
+            // 初始化用户名
+            user_name = $("#private_user_name").attr('value');
+            $("#username").val(user_name);
+
+            // 控件显示控制
+            if (modify_pswd > 0) {
+                // 修改密码
+                $("div[name='normal_frame']").hide();
+                $("div[name='pswd_frame']").show();
+            }
+            else {
+                // 修改常规用户信息
+                $("div[name='pswd_frame']").hide();
+                $("div[name='normal_frame']").show();
+
+                status = $("#private_user_status").attr('value');
+                // 获取私有用户组ID
+                group_id = $("#private_user_group_id").attr('value');
+
+                var user_alias = $("#private_user_alias").attr('value');
+                var remark = $("#private_user_remark").attr('value');
+
+                $("#useralias").val(user_alias);
+                $("#remark").val(remark);
+            }
+
+            $("#username").attr('disabled', 'disabled');
+
+            $("#add_user_btn").removeAttr('disabled');
+        }
+        else {
+            // 新增
+            $("div[name='normal_frame']").show();
+            $("div[name='pswd_frame']").show();
+
+            $("#username").removeAttr('disabled');
+
+            // 清空控件内容
+            $("#username").val('');
+            $("#useralias").val('');
+            $("#remark").val('');
+
+            // 禁用提交按钮
+            $("#add_user_btn").attr('disabled', 'disabled');
+        }
+
+        // 清空密码
+        $("#pswd").val('');
+        $("#pswd2").val('');
+
+        if (modify_pswd > 0 || disabledDeleteUser(user_name)) {
+            $("#user_status_frame").hide();
+        }
+        else {
+            $("#user_status_frame").show();
+            // 用户状态
+            onSetSelectItem('user_status', onGetStatusText(status));
+        }
+
+        // 初始化用户组信息
+        if (modify_pswd == 0) {
+            onGetUserGroups('user_group_id', group_id);
+        }
+
+        // 初始化用户权限
+        if (disabledDeleteUser(user_name) || modify_pswd > 0) {
+            $("#user_access").html(''); // 清空权限列表
+            $("#user_access_frame").hide();
+        }
+        else {
+            $("#user_access_frame").show();
+            onGetUserAccessList('user_access', user_id);
+        }
+
+        // 添加用户模态对话框初始化
+        $("#infoid").html('');
+
+    })
+
+    $("#username").on('focus', function(){
+        $("#infoid").html('');
+        $("#add_user_btn").removeAttr('disabled');
+    });
+    $("#username").on('blur', function(){
+        onCheckNameOnly();
+    });
+    $("#pswd").on('focus', function(){
+        $("#infoid").html('');
+        $("#add_user_btn").removeAttr('disabled');
+    });
+    $("#pswd2").on('blur', function(){
+        var pswd = $("#pswd").val();
+        var pswd2 = $("#pswd2").val();
+        if (pswd.length < 1 || pswd != pswd2) {
+            $("#infoid").html('两次输入的密码不一致，请重新输入');
+        }
+        else {
+            $("#infoid").html('');
+        }
+    });
+
+    function onAddUserBtnClick() {
+        // 初始化私有数据
+        $("#private_modify_pswd").attr('value', 0);
+        $("#private_user_id").attr('value', 0);
+        $("#private_user_name").attr('value', '');
+        $("#private_user_alias").attr('value', '');
+        $("#private_user_group_id").attr('value', 0);
+        $("#private_user_weight").attr('value', 1);
+        $("#private_user_status").attr('value', 1);
+        $("#private_user_remark").attr('value', '');
+
+        // 显示模态对话框
+        $("#user_modal_dialog").modal();
+    }
+
+    function onUserDialogSubmit() {
+        var modify_pswd = $("#private_modify_pswd").val();
+        var user_id = $("#private_user_id").val();
+
+        var user_name = $("#username").val();
+        var user_name_len = utilStrLen(user_name);
+        if (!onCheckInputItemConfirm('username')) {
+            $("#infoid").html('用户名称不能为空');
+            return false;
+        }
+        else if (user_name_len > 20) {
+            $("#infoid").html('用户名称太长，最大长度为20个字符');
+            return false;
+        }
+
+        if (user_id == 0 || modify_pswd > 0) {
+            // 新增或修改密码时需要验证密码项
+            if (!onCheckInputItemConfirm('pswd')) {
+                $("#infoid").html('用户密码不能为空');
+                return false;
+            }
+            if (!onCheckInputItemConfirm('pswd2')) {
+                $("#infoid").html('验证密码不能为空');
+                return false;
+            }
+            if ($("#pswd").val() != $("#pswd2").val()) {
+                $("#infoid").html('两次输入的密码不一致');
+                return false;
+            }
+        }
+
+        $("#infoid").html('');
+
+        // 状态
+        var status = 1;
+        var status_text = $("#user_status option:selected").text();
+        status = onGetStatusValue(status_text);
+
+        // 所属组
+        var group_id = 0;
+        var select_text = $("#user_group_id option:selected").text();
+        if (select_text != '无') {
+            group_id = $("#user_group_id option:selected").attr('id');
+            //group_weight = $("#user_group_id option:selected").attr('value');
+        }
+
+        // 用户权限
+        var access_ids = onGetUserAccessIdsDatas();
+
+        var user_name = $("#username").val();
+        var user_alias = $("#useralias").val();
+        var pswd = $("#pswd").val();
+        var weight = $("#private_user_weight").val();
+        var remark = $("#remark").val();
+
+        if (user_alias == null || user_alias == undefined || user_alias.length < 1) {
+            user_alias = user_name;
+        }
+
+        // MD5加密
+        pswd = utilMd5Encode(pswd, false);
+
+        var postData = {
+          id: user_id,
+          name: user_name,
+          alias: user_alias,
+          modify_pswd: modify_pswd,
+          pswd: pswd,
+          group_id: group_id,
+          access_ids: access_ids,
+          weight: weight,
+          status: status,
+          remark: remark,
+          time: new Date().getTime(),
+        };
+
+        // 新增才需要有密码，修改密码单独提供
+        if (user_id == 0) {
+            postData['pswd'] = pswd;
+        }
+
+        var compnent_id = 'user_modal_dialog';
+        onSubmitUserModify(compnent_id, postData);
+
+        // 获取最大用户数
+        onGetAllowAddUser();
+    }
+
+    function onUserOptionClick(element, op_idx) {
+        var user_id = element.getAttribute("data-user-id");
+        if (op_idx == 1 || op_idx == 2) {
+            // 修改 : 1修改用户常规信息，2修改密码
+            var user_data = element.getAttribute("data-user-data");
+            var user_items = [];
+            if (user_data != undefined) {
+                user_items = user_data.split(';');
+            }
+
+            $("#private_user_id").attr('value', user_id);
+
+            for(var idx = 0; idx < user_items.length; idx++) {
+                var itemValue = user_items[idx];
+                switch(idx) {
+                    case 0:
+                        $("#private_user_name").attr('value', itemValue);
+                        break;
+
+                    case 1:
+                        $("#private_user_alias").attr('value', itemValue);
+                        break;
+
+                    case 2:
+                        $("#private_user_group_id").attr('value', itemValue);
+                        break;
+
+                    case 3:
+                        $("#private_user_weight").attr('value', itemValue);
+                        break;
+
+                    case 4:
+                        $("#private_user_status").attr('value', itemValue);
+                        break;
+
+                    case 5:
+                        $("#private_user_remark").attr('value', itemValue);
+                        break;
+                }
+            }
+
+            // 显示模态对话框
+            $("#private_modify_pswd").attr('value', (op_idx == 1 ? 0 : 1));
+
+            $("#user_modal_dialog").modal('show');
+
+        }
+        else if (op_idx == 3) {
+            // 删除指定用户
+            if (user_id < 1) {
+                return;
+            }
+
+            var userName = ''
+            var user_data = element.getAttribute("data-user-data");
+            var user_items = [];
+            if (user_data != undefined) {
+                user_items = user_data.split(';');
+                userName = user_items[0];
+            }
+            if (disabledDeleteUser(userName)) {
+                alert('"' + userName + '" 用户不允许删除!')
+                return;
+            }
+            var warmMsg = '确定要删除 "' + userName + '" 用户吗？';
+            if (confirm(warmMsg)) {
+
+                var reqUrl = getBaseUrl() + '/manage/user_delete';
+
+                var postData = {
+                    id: user_id,
+                    name: userName,
+                    time: new Date().getTime()
+                };
+
+                onSubmitDelete(reqUrl, postData);
+
+                // 重新请求第一页
+                onGetUserList();
+
+                // 获取允许添加用户标志
+                onGetAllowAddUser();
+            }
+        }
+    }
+
+    function onGetUserList() {
+        var page_index = onGetPrivatePageIndex();
+        var page_size = onGetPrivatePageSize();
+        var page_count = onGetPrivatePageCount();
+        var postData = {
+            page_index: page_index,
+            page_size: page_size,
+            page_count: page_count,
+            time: new Date().getTime()
+        }
+
+        var tb_id = 'tb_data_body_id';
+        var page_id = 'page_id';
+        onQueryUserList(tb_id, page_id, postData);
+    }
+
+    function onGetAllowAddUser() {
+        var reqUrl = getBaseUrl() + '/manage/allow_add_user';
+
+        var add_btn_id = 'btn_user_add';
+        var user_name = getAdministratorName();
+        httpGetRequest(reqUrl, user_name, function(res){
+            var status = res['status'];
+            if (status == 1) {
+                var enable = res['enable'];
+                if (enable != 1) {
+                    $("#" + add_btn_id).attr('disabled', 'disabled');
+                }
+                else {
+                    $("#" + add_btn_id).removeAttr('disabled');
+                }
+            }
+        })
+
+    }
+
+    function onBatchLoadChange() {
+        var file_id = "load_file";
+        var elem = document.getElementById(file_id);
+        var file_name = elem.value; // 文件名
+        if (file_name == "") {
+            return false;
+        }
+
+        var lower_filt_name = file_name.toLocaleLowerCase();
+        var ext_name = '';
+        var pos = lower_filt_name.lastIndexOf('.');
+        if (pos > 0) {
+            ext_name = lower_filt_name.substr(pos + 1);
+
+            // 去掉右边空格
+            pos = ext_name.lastIndexOf(' ');
+            if (pos > 0) {
+                ext_name = ext_name.substr(0, pos);
+            }
+        }
+
+        if ('csv' != ext_name) {
+            alert('请选择有效的 *.csv 文件');
+            return false;
+        }
+
+        var file_size = elem.files[0].size; // 文件大小
+        if (file_size <= 0) {
+            alert('文件为空');
+            return false;
+        }
+
+        var files = $("#" + file_id).prop("files");
+        if (files.length = 0) {
+            alert('请选择文件');
+            return false;
+        }
+        else {
+
+            var reader = new FileReader();
+            reader.readAsText(files[0], "GBK");
+            reader.onload = function(evt){
+                var fileString = evt.target.result; // 文件内容
+                var users = onParseBatchUserData(fileString); // 解析文件列表
+                onUpdateBatchUserDatas(users);
+
+                // 显示用户列表
+                $("#batch_user_modal_dialog").modal();
+            }
+        }
+
+        elem.value = ""; // 恢复未选择状态，以便重复选择能触发改变事件
+
+    }
+
+    function onSelectAllClick(elem) {
+        var select_all = elem.checked;
+
+        // 遍历checkbox列表
+        var elems = document.getElementsByName('inside');
+        for(var idx = 0; idx < elems.length; idx++) {
+            var item = elems[idx];
+
+            if (select_all != item.checked) {
+                item.checked = select_all;
+            }
+        }
+    }
+
+    function onBatchLoadSubmit() {
+        var datas = onGetSelectedBatchUserDatas();
+
+        if (datas == null || datas.length < 1) {
+            alert('请选择要提交的用户');
+            return false;
+        }
+
+        var reqUrl = getBaseUrl() + '/manage/user_batch_modify';
+        var user_name = getAdministratorName();
+        var postData = {
+            users: datas,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                alert(msg);
+                $("#batch_user_modal_dialog").modal('hide');
+
+                // 刷新页面
+                window.location.reload();
+            }
+        });
+    }
+
+    function onUserIsExist(list, user_name) {
+        for(var idx=0; idx < list.length; idx++) {
+            var itemData = list[idx];
+            var item_name = itemData.name;
+
+            if (user_name == item_name) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function onParseBatchUserData(content) {
+        var datas = [];
+        var list = content.split('\r\n'); // 分解出每一行
+
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            var data_item_arr = itemData.split(',');
+
+            var item_id = (idx + 1);
+            var item_name = '';
+            var item_alias = '';
+            var item_pswd = utilMd5Encode('123456');
+
+            if (data_item_arr.length < 1) {
+                continue;
+            }
+
+            item_name = data_item_arr[0];
+
+            if (item_name == undefined || item_name == '') {
+                continue;
+            }
+
+            if (onUserIsExist(datas, item_name)) {
+                continue;
+            }
+
+            item_alias = item_name;
+
+            var userItemData = {
+                id: item_id,
+                name: item_name,
+                alias: item_alias,
+                pswd: item_pswd
+            }
+
+            datas.push(userItemData);
+        }
+
+        return datas;
+    }
+
+    function onUpdateBatchUserDatas(datas) {
+        var innerHtml = '';
+
+        for(var idx = 0; idx < datas.length; idx++) {
+            var itemData = datas[idx];
+
+            innerHtml += onGetUserItemHtml(itemData);
+        }
+
+        $("#res_data_id").html(innerHtml);
+
+    }
+
+    function onGetUserItemHtml(itemData) {
+        var innerHtml = '';
+
+        var item_id = itemData.id;
+        var item_name = itemData.name;
+        var item_alias = itemData.alias;
+        var item_pswd = itemData.pswd;
+
+        var item_user_img = getDefaultUserImage();
+
+        innerHtml += '<div class="wrap-item" ';
+        innerHtml += 'id="' + item_id + '" ';
+        innerHtml += 'name="' + item_name + '" ';
+        innerHtml += 'alias="' + item_alias + '" ';
+        innerHtml += 'pswd="' + item_pswd + '" ';
+        innerHtml += '>';
+
+        innerHtml += '<div class="wrap-item-img" ';
+        innerHtml += '>';
+        innerHtml += '<img src="' + item_user_img + '">';
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-text"';
+        innerHtml += '>';
+        innerHtml += item_name;
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-input"';
+        innerHtml += '>';
+        innerHtml += '<input type="checkbox" checked="checked" name="inside" value="" />';
+        innerHtml += '</div>';
+
+        innerHtml += '</div>';
+
+        return innerHtml;
+    }
+
+    function onGetSelectedBatchUserDatas() {
+        var datas = [];
+        // 遍历checkbox列表
+        var elems = document.getElementsByName('inside');
+        for(var idx = 0; idx < elems.length; idx++) {
+            var item = elems[idx];
+
+            if (!item.checked) {
+                continue;
+            }
+
+            var parent_1_elem = item.parentNode;
+            var parent_2_elem = parent_1_elem.parentNode;
+
+            var item_id = parent_2_elem.getAttribute('id');
+            var item_name = parent_2_elem.getAttribute('name');
+            var item_alias = parent_2_elem.getAttribute('alias');
+            var item_pswd = parent_2_elem.getAttribute('pswd');
+
+            if (item_pswd == undefined || item_pswd == '') {
+                item_pswd = utilMd5Encode('123456');
+            }
+
+            var itemData = {
+                id: item_id,
+                name: item_name,
+                alias: item_alias,
+                pswd: item_pswd
+            }
+
+            datas.push(itemData);
+
+        }
+
+        return datas;
+    }
+
+    function onGetUserAccessList(ctrl_id, user_id) {
+        var reqUrl = getBaseUrl() + '/cfg/user_access_query';
+        var user_name = getAdministratorName();
+        var postData = {
+            user_id: user_id,
+            group_id: 0,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            var innerHtml = '';
+            var count = 0;
+            if (status != 1) {
+
+            }
+            else {
+                count = res['count'];
+                if (count > 0) {
+                    var bodyData = res['data'];
+                    var accessList = bodyData['access'];
+                    var userData = bodyData['user'];
+
+                    var user_access_ids = null;
+                    if (userData != null) {
+                        user_access_ids = userData.access_ids;
+                    }
+
+                    innerHtml = onGetAccessListHtml(user_access_ids, accessList, (user_id > 0 ? false : true));
+
+                }
+            }
+
+            // 更新用户权限数据
+            $("#" + ctrl_id).html(innerHtml);
+        });
+    }
+
+    function onGetUserAccessIdsDatas() {
+        var elem = document.getElementById('user_access');
+        return onGetUserAccessCheckedData(elem);
+    }
+
+</script>
+
+</html>

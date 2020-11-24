@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主机管理</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+
+</head>
+<body>
+
+<div class="hidden_data_area">
+    <!-- 隐藏用户数据 -->
+    <input type="hidden" id="private_host_id" value="0">
+    <input type="hidden" id="private_host_name" value="">
+    <input type="hidden" id="private_host_ip_addr" value="">
+    <input type="hidden" id="private_host_status" value="">
+    <input type="hidden" id="private_host_group_id" value="">
+    <input type="hidden" id="private_host_remark" value="">
+
+    <!-- 隐藏分页信息 -->
+    <input type="hidden" id="private_page_start_index" value="1">
+    <input type="hidden" id="private_page_index" value="1">
+    <input type="hidden" id="private_page_size" value="20">
+    <input type="hidden" id="private_page_count" value="1">
+    <input type="hidden" id="private_page_btns" value="5">
+
+</div> <!-- end div hidden_data_area -->
+
+<!-- 添加对话框 -->
+<div class="modal fade" id="host_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog" id="hostr_dialog_id" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">主机设置</h4>
+            </div> <!-- end div modal-header -->
+            <div class="modal-body">
+                <form name="add_form" id="form_id" method="post" action="" autocomplete="off">
+
+                    <div class="input-group">
+                        <span class="input-group-addon" id="infoid" style="color: red;height: 30px;"> </span>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">IP地址：</span>
+                        <input type="text" class="form-control" id="hostipaddr" name="hostipaddr" placeholder="请输入主机IP地址" style="width: 240px;">
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">主机名称：</span>
+                        <input type="text" class="form-control" id="hostname" name="hostname" placeholder="请输入主机名称">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">启用状态：</span>
+                        <select class="form-control" id="host_status" style="width: 240px;">
+                            <option value="启用">启用</option>
+                            <option value="禁用">禁用</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">所属组：</span>
+                        <select class="form-control" id="host_group_id" style="width: 240px;">
+                            <option>无</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">备注：</span>
+                        <textarea class="form-control" rows="5" id="remark" name="remark" style="width: 240px;"></textarea>
+                    </div>
+
+                </form>
+            </div> <!-- end div modal-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add_user_btn" onclick="Javascript:onHostDialogSubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+        </div> <!-- end div modal-content -->
+    </div>
+</div>
+
+<div class="tab_page">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">主机管理</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="panel-body">
+        <div class="option_area">
+            <div class="input-group" style="width: 90px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" data-toggle="tooltip" title="添加一台新主机" onclick="Javascript:onAddBtnClick();"> + 添加主机</button>
+                </span>
+            </div>
+
+            <div class="input-group" style="margin-left: 10px; width: 90px; ">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" data-toggle="tooltip" title="添加多台已经配置好的主机" onclick="Javascript:onAutoAddBtnClick();"> + 自动发现</button>
+                </span>
+            </div>
+        </div> <!-- end div option_area -->
+
+        <div class="data_area">
+            <table class="table table-bordered" id="tb_data_id">
+                <caption>主机列表</caption>
+                <thead id="tb_data_head_id">
+                    <tr>
+                        <th>序号</th>
+                        <th>主机名</th>
+                        <th>IP地址</th>
+                        <th>启用状态</th>
+                        <th>所属组</th>
+                        <th>备注</th>
+                        <th>选项</th>
+                    </tr>
+                </thead>
+                <tbody id="tb_data_body_id" class="table_decorate">
+
+                </tbody>
+            </table>
+        </div> <!-- end div data_area -->
+
+        <div class="page_area">
+            <ul class="pagination" id="page_id">
+                <!--<li><a href="#">&laquo;</a> </li>
+                <li><a href="#">1</a> </li>
+                <li><a href="#">&raquo;</a> </li>-->
+            </ul>
+        </div> <!-- end div page_area -->
+
+        <div class="status_area">
+            <label id="status_max_records_id"></label>
+        </div> <!-- end div status_area -->
+
+    </div> <!-- end div panel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        onGetHostList();
+    }
+
+    function onInitModalDialog() {
+        var group_id = 0;
+        var status = 1;
+        // 获取私有数据
+        var host_id = $("#private_host_id").attr('value');
+        if (host_id > 0) {
+            var host_name = $("#private_host_name").attr('value');
+            var host_ip_addr = $("#private_host_ip_addr").attr('value');
+            status = $("#private_host_status").attr('value');
+            var remark = $("#private_host_remark").attr('value');
+            // 获取私有组ID
+            group_id = $("#private_host_group_id").attr('value');
+
+            $("#hostname").val(host_name);
+            $("#hostipaddr").val(host_ip_addr);
+            $("#remark").val(remark);
+
+            $("#add_user_btn").removeAttr('disabled');
+        }
+        else {
+            // 清空控件内容
+            $("#hostname").val('');
+            $("#hostipaddr").val('');
+            $("#hostostype").val('');
+            $("#remark").val('');
+
+            // 禁用提交按钮
+            $("#add_user_btn").attr('disabled', 'disabled');
+        }
+
+        // 初始化主机状态
+        onChangeSelectItem('host_status', onGetStatusText(status));
+
+        // 初始化用户组信息
+        onGetHostGroups('host_group_id', group_id);
+
+        // 添加用户模态对话框初始化
+        $("#infoid").html('');
+
+    }
+
+    // 模态对话框初始化
+    $("#host_modal_dialog").on('show.bs.modal', function () {
+
+    })
+
+    $("#hostipaddr").on('focus', function(){
+        $("#infoid").html('');
+        $("#add_user_btn").removeAttr('disabled');
+    });
+    $("#hostipaddr").on('blur', function(){
+        // 检测IP地址唯一性
+        onCheckHostIpaddrOnly();
+        // 检测IP地址合法性
+        var host_ip_addr = $("#hostipaddr").val();
+        if (host_ip_addr == null || host_ip_addr == '') {
+            return false;
+        }
+        if (!onCheckIpv4Valid(host_ip_addr)) {
+            return false;
+        }
+    });
+
+    function onAddBtnClick() {
+        // 初始化私有数据
+        $("#private_host_id").attr('value', 0);
+        $("#private_host_name").attr('value', '');
+        $("#private_host_ip_addr").attr('value', '');
+        $("#private_host_status").attr('value', 0);
+        $("#private_host_group_id").attr('value', 0);
+        $("#private_host_remark").attr('value', '');
+
+        // 显示模态对话框
+        $("#host_modal_dialog").modal();
+
+        onInitModalDialog();
+    }
+
+    function onAutoAddBtnClick() {
+        var reqUrl = "host_discover.html";
+        window.open(reqUrl);
+    }
+
+    function onHostDialogSubmit() {
+        if (!onCheckInputItemConfirm('hostipaddr')) {
+            $("#infoid").html('主机IP地址不能为空');
+            return false;
+        }
+        $("#infoid").html('');
+
+        var host_id = $("#private_host_id").val();
+        var host_name = $("#hostname").val();
+        var host_ip_addr = $("#hostipaddr").val();
+        var remark = $("#remark").val();
+        // 主机状态
+        var host_status = 1;
+        var status_text = $("#host_status option:selected").text();
+        host_status = onGetStatusValue(status_text);
+        // 所属组
+        var group_id = 0;
+        //var group_name = 0;
+        var select_text = $("#host_group_id option:selected").text();
+        if (select_text != '无') {
+            group_id = $("#host_group_id option:selected").attr('id');
+            //group_name = $("#host_group_id option:selected").attr('value');
+        }
+
+        if (host_name == null || host_name == undefined || host_name.length < 1) {
+            host_name = host_ip_addr;
+        }
+
+        // 获取旧IP，状态
+        var old_host_ip_addr = '';
+        var old_host_status = 1;
+
+        if (host_id > 0) {
+            old_host_ip_addr = $("#private_host_ip_addr").val();
+            old_host_status = $("#private_host_status").val();
+        }
+
+        var postData = {
+            id: host_id,
+            name: host_name,
+            ip: host_ip_addr,
+            status: host_status,
+            old_ip: old_host_ip_addr,
+            old_status: old_host_status,
+            group_id: group_id,
+            remark: remark,
+            time: new Date().getTime(),
+        };
+
+        var compnent_id = 'host_modal_dialog';
+        onSubmitHostModify(compnent_id, postData);
+    }
+
+    function onHostOptionClick(element, op_idx) {
+        var host_id = element.getAttribute("data-user-id");
+        if (op_idx == 1) {
+            // 修改
+            var user_data = element.getAttribute("data-user-data");
+            var user_items = [];
+            if (user_data != undefined) {
+                user_items = user_data.split(';');
+            }
+
+            $("#private_host_id").attr('value', host_id);
+
+            for(var idx = 0; idx < user_items.length; idx++) {
+                var itemValue = user_items[idx];
+                switch(idx) {
+                    case 0:
+                        $("#private_host_name").attr('value', itemValue);
+                        break;
+
+                    case 1:
+                        $("#private_host_ip_addr").attr('value', itemValue);
+                        break;
+
+                    case 2:
+                        $("#private_host_status").attr('value', itemValue);
+                        break;
+
+                    case 3:
+                        $("#private_host_group_id").attr('value', itemValue);
+                        break;
+
+                    case 4:
+                        $("#private_host_remark").attr('value', itemValue);
+                        break;
+                }
+            }
+
+            // 显示模态对话框
+            $("#host_modal_dialog").modal();
+
+            onInitModalDialog();
+        }
+        else if (op_idx == 2) {
+            // 删除
+            if (host_id < 1) {
+                return;
+            }
+
+            var host_name = ''
+            var host_ip = '';
+            var user_data = element.getAttribute("data-user-data");
+            var user_items = [];
+            if (user_data != undefined) {
+                user_items = user_data.split(';');
+                host_name = user_items[0];
+                host_ip = user_items[1];
+            }
+            var warmMsg = '确定要删除 "' + host_name + '" 主机吗？';
+            if (confirm(warmMsg)) {
+                var reqUrl = getBaseUrl() + '/manage/host_delete';
+
+                var postData = {
+                    id: host_id,
+                    name: host_name,
+                    ip: host_ip,
+                    time: new Date().getTime()
+                };
+                onSubmitDelete(reqUrl, postData);
+
+                // 重新请求第一页
+                onGetHostList();
+            }
+        }
+    }
+
+    function onGetHostList() {
+        var page_index = onGetPrivatePageIndex();
+        var page_size = onGetPrivatePageSize();
+        var page_count = onGetPrivatePageCount();
+        var postData = {
+            page_index: page_index,
+            page_size: page_size,
+            page_count:page_count,
+            time: new Date().getTime(),
+        }
+
+        var tb_id = 'tb_data_body_id';
+        var page_id = 'page_id';
+        onQueryHostList(tb_id, page_id, postData);
+    }
+
+</script>
+
+</html>

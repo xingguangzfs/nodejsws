@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WEB系统设置</title>
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+</head>
+<body>
+
+
+<div class="tab-content">
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">WEB设置</h7>
+        </div> <!-- end div panel-heading -->
+
+    </div>
+
+    <div class="panel-body">
+
+        <div class="setting-frame">
+
+            <div class="panel panel-default setting-panel">
+                <div class="panel-heading">
+                    <h5 class="panel-title" style="text-align: left">
+                        系统使用安全
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="如果客户端空闲（没有操作、没有运行应用软件）超时达到阀值，
+会话将失效，若继续使用需要重新登录">
+                                <span class="input-group-addon">客户端超时设置<span>（单位：分钟）</span></span>
+                                <input type="number" class="form-control" id="max_timeout" min="1" max="1440" step="1" style="width: 400px;" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default setting-panel">
+                <div class="panel-heading">
+                    <h5 class="panel-title" style="text-align: left">
+                        监控参数
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="监控中心的数据将根据此值的频率进行更新">
+                                <span class="input-group-addon">监控数据更新频率<span>（单位：秒）</span></span>
+                                <input type="number" class="form-control" id="mon_period" min="1" max="10" step="1" style="width: 400px;" >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="监控服务商品号，默认值3391，有效值大于等于 1 到小于等于 65535 ，请在必要时才修改此项">
+                                <span class="input-group-addon">监控端口</span>
+                                <input type="text" class="form-control" id="mon_port" style="width: 400px;" >
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div> <!-- end div setting-frame -->
+
+    </div> <!-- end div pannel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        onGetCfgws();
+    }
+
+    $(function () { $("[data-toggle='popover']").popover('show'); });
+
+    // 最大超时时间
+    $("#max_timeout").on('blur', function(){
+        if ($(this).val()) {
+            var maxTimeout = $(this).val() * 60; // 转化为秒
+
+            var ele = document.getElementById('max_timeout');
+            var owner = ele.getAttribute('owner');
+
+            if (maxTimeout < 60 || maxTimeout > (24 * 60 * 60)) {
+                alert('请输入 1 至 1440 (24小时) 之间的整数');
+                ele.value = owner;
+                return false;
+            }
+
+            if (owner == maxTimeout) {
+                // 值没有变化
+                return false;
+            }
+
+            var dictionary = [
+                {
+                    type: 'number',
+                    name: 'max_timeout',
+                    value: maxTimeout
+                }
+            ]
+
+            onPostModify(dictionary);
+        }
+    })
+
+    // 最大超时时间
+    $("#mon_period").on('blur', function(){
+        if ($(this).val()) {
+            var monPeriod = $(this).val(); // 转化为秒
+
+            var ele = document.getElementById('mon_period');
+            var owner = ele.getAttribute('owner');
+
+            if (monPeriod < 1 || monPeriod > 10) {
+                alert('请输入 1 至 10 之间的整数');
+                ele.value = owner;
+                return false;
+            }
+
+            if (owner == monPeriod) {
+                // 值没有变化
+                return false;
+            }
+
+            var dictionary = [
+                {
+                    type: 'number',
+                    name: 'mon_period',
+                    value: monPeriod
+                }
+            ]
+
+            onPostModify(dictionary);
+        }
+    });
+
+    // 监控端口
+    $("#mon_port").on('blur', function(){
+        if ($(this).val()) {
+            var mon_port_text = $(this).val();
+            try {
+                var mon_port = parseInt(mon_port_text);
+                if (mon_port < 1 || mon_port > 65535) {
+                    alert('请输入大于等于 1 到小于等于 65535 之间的整数');
+                    return false;
+                }
+
+                var ele = document.getElementById('mon_port');
+                var owner = ele.getAttribute('owner');
+
+                if (owner == mon_port_text) {
+                    // 值没有变化
+                    return false;
+                }
+
+                if (!confirm('确定要修改通讯端口吗？')) {
+                    ele.value = owner;
+                    return false;
+                }
+
+                var dictionary = [
+                    {
+                        type: 'number',
+                        name: 'mon_port',
+                        value: mon_port
+                    }
+                ]
+
+                onPostModify(dictionary);
+            }
+            catch (err) {
+                alert('输入值无效');
+                return false;
+            }
+        }
+    });
+
+    function onGetCfgws() {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/ws';
+
+        var postData = {
+            fields: ['max_timeout', 'mon_period', 'mon_port'],
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            if (status != 1) {
+                alert(res['msg']);
+            }
+            else {
+                var data = res['data'];
+
+                var max_timeout = data['max_timeout'];
+                var mon_period =data['mon_period'];
+                var mon_port = data['mon_port'];
+
+                onSetMaxTimeoutUI(max_timeout);
+                onSetMonPeriodUI(mon_period);
+                onSetMonPortUI(mon_port);
+            }
+        });
+    }
+
+    function onSetMaxTimeoutUI(max_timeout) {
+        document.getElementById('max_timeout').setAttribute('value', max_timeout / 60); // 转为分钟
+        document.getElementById('max_timeout').setAttribute('owner', max_timeout / 60);
+    }
+
+    function onSetMonPeriodUI(mon_period) {
+        document.getElementById('mon_period').setAttribute('value', mon_period);
+        document.getElementById('mon_period').setAttribute('owner', mon_period);
+    }
+
+    function onSetMonPortUI(port) {
+        document.getElementById('mon_port').setAttribute('value', port);
+        document.getElementById('mon_port').setAttribute('owner', port);
+    }
+
+    function onPostModify(dictionary) {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/ws_modify';
+
+        var postData = {
+            list: dictionary,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            alert(msg);
+
+            // 重新更新
+            onGetCfgws();
+        });
+    }
+
+</script>
+
+</html>

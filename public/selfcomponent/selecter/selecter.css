@@ -1,0 +1,69 @@
+
+.self-selecter {
+    width: 100%;
+    height: 100%;
+}
+.self-selecter-head {
+    width: 100%;
+    height: 35px;
+    border-bottom: solid 1px #9d9d9d;
+}
+
+.self-selecter-row {
+    display: flex;
+    flex-direction: row;
+}
+.self-prev-btn {
+    position: absolute;
+    margin: 1px 5px 1px 5px;
+    left: 10px;
+}
+.self-next-btn {
+    position: absolute;
+    margin: 1px 5px 1px 5px;
+    right: 10px;
+}
+
+/* 列表框 */
+.self-selecter-wrap-frame {
+    margin: 10px 10px 10px 10px;
+    display: flex;
+    flex-wrap: wrap; /* 换行 */
+    justify-content: flex-start; /* 子元素对齐方式 */
+    position: absolute;
+    left: 0px;
+    top: 30px;
+    width: auto;
+    height: auto;
+}
+.self-selecter-wrap-item {
+    margin: 5px 5px 5px 5px;
+    width: 80px;
+    height: 80px;
+    border: solid 1px #9d9d9d;
+}
+.self-selecter-wrap-item:hover {
+    background-color: #1874CD;
+}
+.self-selecter-wrap-item-img {
+    width: 100%;
+    height: 48px;
+}
+.self-selecter-wrap-item-img img {
+    margin: 2px 16px 2px 16px;
+    width: 48px;
+    height: 48px;
+}
+.self-selecter-wrap-item-text {
+    width: 100%;
+    height: 28px;
+    text-align: center;
+    padding-top: 6px;
+    font-family: '宋体';
+    font-size: 12px;
+
+    /* 超出部分显示省略号 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

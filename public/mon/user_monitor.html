@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户监控</title>
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/mon_op.js"></script>
+    <script src="../javascripts/ws_client.js"></script>
+</head>
+
+<body>
+
+<style>
+    .tooltip-box {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        min-width: 80px;
+        width: auto;
+        min-height: 40px;
+        height:auto;
+    }
+</style>
+
+<div class="hidden-area">
+    <input type="hidden" id="private_mon_period" value="0">
+</div>
+
+<div class="tab_page" >
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">用户监控</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="tip-area">
+        <div class="tip-line">
+            <div class="tip-column">
+                <div class="tip-item">
+                    <img src="../images/circle_black.png" width="32" height="32" />
+                    <span>不在线</span>
+                </div>
+                <div class="tip-item">
+                    <img src="../images/circle_green.png" width="32" height="32" />
+                    <span>在线</span>
+                </div>
+            </div>
+        </div>
+        <div class="tip-line">
+            <div class="tip-column">
+                <div class="tip-item">
+                    <div class="label label-info">运行应用数量</div>
+                </div>
+                <div class="tip-item">
+                    <div class="label label-primary">分布主机数量</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="panel-body" >
+        <div class="normal-frame" id="res_data_id" >
+
+        </div>
+
+    </div> <!-- end div panel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script type="text/javascript">
+
+    // 获取链接地址
+    function onGetMonDatas() {
+        onGetMonServerAddr(function (res) {
+            var status = res['status'];
+            var msg = res['msg'];
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                var data = res['data'];
+
+                var host = onGetMonServerHost();
+                var port = data['port'];
+
+                onStartWebSocket(host, port);
+            }
+
+        });
+    }
+
+    function onStartWebSocket(host , port) {
+        // 启动websocket连接
+        var ws_timer = null;
+        var ws = getWebSocketConnect(host, port);
+        if (ws == null) {
+            //alert('监控初始化失败请重新打开');
+        }
+        else {
+            ws.onopen = function (e) {
+                //alert('websocket connect success');
+
+                onGetData(ws);
+
+                var mon_period = $("#private_mon_period").val();
+                if (mon_period < 1) {
+                    mon_period = 5;
+                }
+
+                // 启动监控数据获取定时器
+                ws_timer = setInterval(function () {
+
+                    onGetData(ws);
+
+                }, mon_period * 1000);
+
+            }
+
+            ws.onclose = function (e) {
+                if (ws_timer) {
+                    clearInterval(ws_timer);
+                    ws_timer = null;
+                }
+
+                //var strWarm = '连接已经断开，如果需要继续监控，请刷新页面重连';
+                //alert(strWarm);
+            }
+
+            ws.onmessage = function (e) {
+                var strObj = null;
+                try {
+                    strObj = JSON.parse(e.data);
+
+                    onParseMonRecvData(strObj, onUpdateMonUserData);
+                }
+                catch (err) {
+                    // ws.close(); // 关闭连接
+                }
+            }
+
+        }
+    }
+
+    function onGetData(ws) {
+        // 获取监控用户状态
+        onGetUserOnline();
+
+        // 获取用户监控
+        var module_id = onGetDefaultModuleId('mon_user');
+        var reqPacket = onGetMonUserPacket(module_id, 0, null);
+
+        ws.send(JSON.stringify(reqPacket));
+    }
+
+    function onUpdateMonUserData(datas) {
+        // 此处的 status 指是否活动
+        // [{"name":"ac004","status":0,"app_count":0,"as_count":0},{"name":"test","status":1,"app_count":1,"as_count":1}]
+        for(var idx = 0; idx < datas.length; idx++) {
+            var itemData = datas[idx];
+
+            onUpdateItemData(itemData);
+        }
+    }
+
+    function onUpdateItemData(itemData) {
+        var item_name = itemData.name;
+        var item_active = itemData.status;
+        var item_app_count = itemData.app_count;
+        var item_as_count = itemData.as_count;
+
+        var ctrl_id = 'res_data_id';
+
+        var update_elem = null;
+        var elems = document.getElementById(ctrl_id);
+        for(var idx = 0; idx < elems.childNodes.length; idx++) {
+            var itemNode = elems.childNodes[idx]; // 'wrap-item'
+
+            var item_r_name = itemNode.getAttribute('name');
+
+            if (item_name == item_r_name) {
+                update_elem = itemNode;
+                break;
+            }
+        }
+
+        if (update_elem != null) {
+            // 更新项
+            onUpdateItemElement(update_elem, itemData);
+        }
+        else {
+            // 新增项
+            onCreateItemElement(itemData);
+        }
+    }
+
+    function onCreateItemElement(itemData) {
+        // 暂时用不着，因此不实现
+    }
+
+    function onUpdateItemElement(elem, itemData) {
+        var item_name = itemData.name;
+        var item_active = itemData.status;
+        var item_app_count = itemData.app_count;
+        var item_as_count = itemData.as_count;
+
+        var item_r_id = elem.getAttribute('id');
+        var item_r_name = elem.getAttribute('name');
+        var item_r_active = elem.getAttribute('active');
+        var item_r_app_count = elem.getAttribute('app_count');
+        var item_r_as_count = elem.getAttribute('as_count');
+
+        var item_app_count_id = onGetAppCountId(item_r_id);
+        var item_as_count_id = onGetAsCountId(item_r_id);
+        var item_grade_img_id = onGetGradeImgId(item_r_id);
+
+        if (item_active != item_r_active) {
+            // 是否活动
+            elem.setAttribute('active', item_active);
+        }
+
+        if (item_app_count != item_r_app_count) {
+            // APP个数
+            elem.setAttribute('app_count', item_app_count);
+            $("#" + item_app_count_id).html(item_app_count);
+        }
+
+        if (item_as_count != item_r_as_count) {
+            // AS个数
+            elem.setAttribute('as_count', item_as_count);
+            $("#" + item_as_count_id).html(item_as_count);
+        }
+
+    }
+
+    function onWrapItemDbClick(elem) {
+        var item_id = elem.getAttribute('id');
+        var item_online = elem.getAttribute('online');
+        var item_name = elem.getAttribute('name');
+
+        if (item_online == undefined || item_online != 1) {
+            alert('不在线用户无法获取详细信息');
+            return false;
+        }
+
+        if (item_name == undefined || item_name == null || item_name.length < 1) {
+            alert('获取用户名称失败');
+            return false;
+        }
+
+        var reqUrl = "user_act_inst.html";
+        reqUrl += "?id=" + item_id;
+        reqUrl += "&name=" + getZhEncode(item_name);
+
+        window.open(reqUrl);
+    }
+
+    function onWrapItemMouseOver(elem) {
+
+        var item_id = elem.getAttribute('id');
+        var item_status = elem.getAttribute('status');
+        var item_name = elem.getAttribute('name');
+        var item_online = elem.getAttribute('online');
+        var item_active = elem.getAttribute('active');
+        var item_app_count = elem.getAttribute('app_count');
+        var item_as_count = elem.getAttribute('as_count');
+        var item_client_ip_addr = elem.getAttribute('client_ip_addr');
+
+        var item_status_text = onGetStatusText(item_status);
+        var item_online_text = onGetStatusText(item_online);
+        var item_active_text = onGetStatusText(item_active);
+
+        var innerTitleHtml = '';
+
+        innerTitleHtml += '<div><h4>双击图标查看详细信息</h4></div>'
+
+        var innerHtml = '';
+
+        innerHtml += '<table class="table table-condensed" style="margin-top: -10px;margin-bottom: -10px;">';
+
+        innerHtml += '<tbody>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>用户名称：</td>';
+        innerHtml += '<td>' + item_name + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>是否在线：</td>';
+        innerHtml += '<td>' + item_online_text + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>是否活动：</td>';
+        innerHtml += '<td>' + item_active_text + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>运行应用数量：</td>';
+        innerHtml += '<td>' + item_app_count + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>分布主机数量：</td>';
+        innerHtml += '<td>' + item_as_count + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>登录IP地址：</td>';
+        innerHtml += '<td>' + item_client_ip_addr + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '</tbody>';
+
+        innerHtml += '</table>';
+
+        var place_text = onGetPlaceText();
+
+        $("#" + item_id).popover({
+            trigger:'manual',
+            placement : place_text,
+            title :  innerTitleHtml,
+            html: 'true', //needed to show html of course
+            content : innerHtml,
+            animation: false
+        }).on("mouseover", function () {
+            $(this).popover("show");
+
+        }).on("mouseout", function () {
+            $(this).popover("destroy");
+        });
+
+    }
+
+    function onWrapItemMouseOut(elem) {
+
+    }
+
+    function onUpdateItemUserData(list) {
+        var ctrl_id = 'res_data_id';
+
+        var elems = document.getElementById(ctrl_id);
+        for(var idx = 0; idx < elems.childNodes.length; idx++) {
+            var itemNode = elems.childNodes[idx]; // 'wrap-item'
+
+            var item_r_id = itemNode.getAttribute('id');
+            var item_r_online = itemNode.getAttribute('online');
+
+            var item_user_data = onGetItemUserData(item_r_id, list);
+            if (item_user_data != null) {
+                var item_user_status = item_user_data['status'];
+                if (item_r_online != item_user_status) {
+                    var item_client_ip_addr = item_user_data['client_ip_addr'];
+                    var item_grade_img_id = onGetGradeImgId(item_r_id);
+                    var item_grade_img = onGetGradeNetPath() + '/' + onGetGradePrefix() + onGetSwitchGrade(item_user_status) + onGetGradeSuffix();
+                    itemNode.setAttribute('online', item_user_status);
+                    itemNode.setAttribute('client_ip_addr', item_client_ip_addr);
+
+                    $("#" + item_grade_img_id).attr('src', item_grade_img);
+                }
+            }
+        }
+    }
+
+    function onGetItemUserData(user_id, list) {
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            if (user_id == itemData['user_id']) {
+                return itemData;
+            }
+        }
+        return null;
+    }
+
+    window.onload = function() {
+
+        // 监控周期
+        onGetMonPeriod(function(res) {
+           var status = res['status'];
+            if (status == 1) {
+                var resData = res['data'];
+                var mon_period = resData['mon_period'];
+
+                $("#private_mon_period").attr('value', mon_period);
+            }
+        });
+
+        // 获取监控用户列表
+        onGetMonUserList();
+
+        // 获取监控用户状态
+        onGetUserOnline();
+
+        // 获取监控数据
+        onGetMonDatas();
+
+    }
+
+    function onGetMonUserList() {
+        var reqUrl = getBaseUrl() + '/manage/user_simple_query';
+        var user_name = getAdministratorName();
+        var postData = {
+            status: 1,
+            page_index: 1,
+            page_size: 1000,
+            page_count: 1,
+            time: new Date().getTime(),
+        }
+
+        var ctrl_id = 'res_data_id';
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var max_count = 0;
+            var total_count = 0;
+            var innerHtml = '';
+
+            if (status == 1) {
+                max_count = res['max_count'];
+                total_count = res['total_count'];
+            }
+            else {
+                var msg = res['msg'];
+                onErrorHandle(status, msg);
+            }
+
+            if (total_count > 0) {
+                var list = res['list'];
+
+                for(var idx = 0; idx < list.length; idx++) {
+                    var itemData = list[idx];
+
+                    var item_id = itemData['id'];
+                    var item_name = itemData['name'];
+                    var item_status = itemData['status']; // 启用状态
+                    var item_remark = itemData['remark'];
+                    var item_app_count = 0;
+                    var item_as_count = 0;
+                    var item_online = 0; // 是否在线，用WEB端来确认
+                    var item_active = 0; // 是否活动，监控数据返回
+
+                    if (item_remark == null) {
+                        item_remark = '';
+                    }
+
+                    var item_img = getDefaultUserImage();
+                    var item_grade_img = onGetGradeNetPath() + '/' + onGetGradePrefix() + onGetSwitchGrade(item_online) + onGetGradeSuffix();
+                    var item_app_count_id = onGetAppCountId(item_id);
+                    var item_as_count_id = onGetAsCountId(item_id);
+                    var item_grade_img_id = onGetGradeImgId(item_id);
+
+                    innerHtml += '<div class="wrap-item"';
+                    innerHtml += ' id="' + item_id + '"';
+                    innerHtml += ' name="' + item_name + '"';
+                    innerHtml += ' status="' + item_status + '"';
+                    innerHtml += ' online="' + item_online + '"';
+                    innerHtml += ' active="' + item_active + '"';
+                    innerHtml += ' app_count="' + item_app_count + '"';
+                    innerHtml += ' as_count="' + item_as_count + '"';
+                    innerHtml += ' client_ip_addr="" ';
+                    innerHtml += ' ondblclick="Javascript:onWrapItemDbClick(this);"';
+                    innerHtml += ' onMouseOver="Javascript:onWrapItemMouseOver(this);"';
+                    //innerHtml += ' onMouseOut="Javascript:onWrapItemMouseOut(this);"';
+                    innerHtml += '>';
+
+                    innerHtml += '<div class="wrap-item-img">';
+                    innerHtml += '<img src="' + item_img + '">'
+                    innerHtml += '</div>';
+
+                    innerHtml += '<div class="wrap-item-text">';
+                    innerHtml += item_name;
+                    innerHtml += '</div>';
+
+                    innerHtml += '<div class="wrap-item-input">';
+
+                    innerHtml += '<div class="wrap-item-input-column">';
+                    innerHtml += '<span class="label label-info"';
+                    innerHtml += ' id="' + item_app_count_id + '"';
+                    innerHtml += '>';
+                    innerHtml += item_app_count;
+                    innerHtml += '</span>';
+
+                    innerHtml += '<span class="label label-primary"';
+                    innerHtml += ' id="' + item_as_count_id + '"';
+                    innerHtml += '>';
+                    innerHtml += item_as_count;
+                    innerHtml += '</span>';
+
+                    innerHtml += '</div>';
+
+                    innerHtml += '<div class="wrap-item-input-column">';
+                    innerHtml += '</div>';
+
+                    innerHtml += '<div class="wrap-item-input-column">';
+                    innerHtml += '<img src="' + item_grade_img + '"';
+                    innerHtml += ' id="' + item_grade_img_id + '"';
+                    innerHtml += ' width="32" height="32"';
+                    innerHtml += '>';
+                    innerHtml += '</div>';
+
+                    innerHtml += '</div>'
+
+                    innerHtml += '</div>';
+                }
+
+            }
+
+            $("#" + ctrl_id).html(innerHtml);
+
+        });
+
+    }
+
+    function onGetUserOnline() {
+        var reqUrl = getBaseUrl() + '/mon/user_session_query';
+        var user_name = getAdministratorName();
+        var postData = {
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res) {
+            var status = res['status'];
+            var total_count = 0;
+            var innerHtml = '';
+            if (status == 1) {
+                total_count = res['total_count'];
+            }
+            else {
+                var msg = res['msg'];
+                onErrorHandle(status, msg);
+            }
+
+            if (total_count > 0) {
+                var list = res['list'];
+                onUpdateItemUserData(list);
+            }
+
+        });
+    }
+
+    function onGetAppCountId(id) {
+        return ('app_count_' + id);
+    }
+
+    function onGetAsCountId(id) {
+        return ('as_count_' + id);
+    }
+
+</script>
+
+</html>

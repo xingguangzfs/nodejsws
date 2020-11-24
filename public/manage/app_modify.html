@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>应用设置</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <link href="../selfcomponent/selecter/selecter.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../selfcomponent/selecter/selecter.js"></script>
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+    <script src="../javascripts/util.js"></script>
+
+    <style>
+
+        .input-line {
+            display: flex;
+        }
+        .input-group {
+            margin-left: 10px;
+            float: left;
+        }
+        .input-group-btn {
+            position: relative;
+            float: left;
+            min-width: 0px;
+        }
+        .input-line-space {
+            width: 20px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="hidden_data_area">
+    <!-- 隐藏用户数据 -->
+    <input type="hidden" id="private_app_id" value="0">
+    <input type="hidden" id="private_app_text" value="">
+    <input type="hidden" id="private_app_image" value="">
+    <input type="hidden" id="private_app_param" value="">
+    <input type="hidden" id="private_app_group_id" value="">
+    <input type="hidden" id="private_app_status" value="">
+    <input type="hidden" id="private_app_remark" value="">
+
+    <input type="hidden" id="private_host_ip_id" value="0">
+
+    <!-- 获取应用图标相关 -->
+    <input type="hidden" id="private_app_image_name" value="">
+    <input type="hidden" id="private_app_image_file" value="">
+    <input type="hidden" id="private_app_image_size" value="0">
+
+</div> <!-- end div hidden_data_area -->
+
+<div class="modal fade" id="appImageConfirmDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 350px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">应用图标</h4>
+            </div>
+            <div class="modal-body">
+                <div style="margin: 0 auto; text-align: center;">
+                    <img id="app_image_preview" src="" />
+                </div>
+                <div style="text-align: center;">
+                    <h5>确认请按<span style="font-weight: bold;">&nbsp;&nbsp;应用&nbsp;&nbsp;</span>按钮，放弃请按<span style="font-weight: bold;">&nbsp;&nbsp;取消&nbsp;&nbsp;</span>按钮</h5>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="Javascript:onAppImageSubmit();">应用</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="head_area">
+
+</div> <!-- end div head_area -->
+
+<div class="content_area" >
+
+    <div class="left_side">
+
+    </div> <!-- end div left_side -->
+
+    <div class="panel panel-info" style="width: 80%;">
+        <div class="panel-heading">
+            <h7 class="panel-title">应用设置</h7>
+        </div> <!-- end div panel-heading -->
+
+        <div class="panel-body" >
+
+            <div class="operate_area">
+                <!-- 水平空格 -->
+                <div class="hor-space"></div>
+
+                <div class="head-line">
+
+                    <div class="head-line-label">
+                        <h5 class="font-bold">应用属性</h5>
+                    </div>
+
+                </div> <!-- end div head-line -->
+
+                <div>
+                    <h4></h4>
+                </div>
+
+                <div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="infoid" style="width: 646px; color: red;"> </span>
+                    </div>
+                </div>
+
+                <div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 160px;">标题：
+                            <span style="color: red;">*</span>
+                        </span>
+                        <input type="text" class="form-control" id="app_text" name="app_text" placeholder="请输入应用程序标题，如画图，记事本等" style="width: 485px;">
+
+                    </div>
+                </div>
+
+                <div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 160px;">图标：
+                            <span style="color: red;">*</span>
+                        </span>
+                        <input type="text" class="form-control" id="app_image" name="app_image" readonly="readonly" placeholder="请选择应用程序图标" style="width: 390px;" >
+
+                        <span class="input-group-btn">
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle" id="app_image_menu" data-toggle="dropdown">
+                                    选择图标
+                                    <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu pull-right" role="menu" aria-labelledby="app_image_menu" id="app_image_list" >
+
+                                </div>
+
+                            </div>
+                        </span>
+
+                    </div>
+
+                    <div style="margin-left: 10px;">
+                        <img id="app_image_preview2" src="" width="32" height="32" />
+                    </div>
+
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="Javascripts:onAutoGetImage();" style="margin-left: 10px;">自动获取图标</button>
+                    </div>
+
+                </div>
+
+                <!--<div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 160px;" >启动参数：</span>
+                        <input type="text" class="form-control" id="app_param" name="app_param" placeholder="请输入应用程序启动参数" style="width: 485px;" >
+                    </div>
+                </div>-->
+
+                <div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 160px;">所属组：</span>
+                        <select class="form-control" id="app_group_id" style="width: 485px;">
+                            <option id="0">无</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 160px;">启用状态：</span>
+                        <select class="form-control" id="app_status" style="width: 485px;">
+                            <option value="启用">启用</option>
+                            <option value="禁用">禁用</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-line">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 160px;">备注：</span>
+                        <textarea class="form-control" rows="1" id="remark" name="remark" style="width: 485px;"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <h4></h4>
+                </div>
+
+            </div> <!-- end div operate_area -->
+
+            <div class="operate_area">
+                <!-- 水平空格 -->
+                <div class="hor-space"></div>
+
+                <div class="head-line">
+
+                    <div class="head-line-label">
+                        <h5 class="font-bold">应用所在主机</h5>
+                    </div>
+
+                    <div class="input-group">
+                        <button type="button" class="btn btn-primary" onclick="Javascript:onAddHostInputItemClick();">+添加主机项</button>
+                    </div>
+
+                    <div style="margin-left: 20px; width: 85%;">
+                        <h5>IP地址指应用所在主机的IP地址。目标：表示应用程序所在路径及运行参数（若有），即应用程序快捷方式中的目标。
+                            起始位置：表示应用程序启动时的指定路径（若有），即快捷方式中的起始位置</h5>
+                    </div>
+
+                </div> <!-- end div head-line -->
+
+                <div>
+                    <h4></h4>
+                </div>
+
+                <div id="host_data_list">
+
+                <div class="input-line">
+
+                    <div class="input-group" >
+                        <span class="input-group-addon" style="width: 90px;">IP地址：
+                            <span style="color: red;">*</span>
+                        </span>
+                        <input type="text" class="form-control" id="host_ip" name="host_ip" readonly="readonly" placeholder="请选择主机IP地址" user-id="0" style="width: 150px;">
+                        <span class="input-group-btn">
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-default dropdown-toggle" id="host_ip_menu" data-toggle="dropdown"  style="width: 90px;">
+                                    选择主机
+                                    <span class="caret"></span>
+                                </button>
+                                <div class="dropdown-menu pull-right" role="menu" aria-labelledby="host_ip_menu" id="host_ip_list" >
+
+                                </div>
+
+                            </div>
+                        </span>
+
+                    </div>
+
+                    <div class="input-line-space"></div>
+
+                    <div class="input-group" >
+                        <span class="input-group-addon" style="width: 140px;" >目标：
+                            <span style="color: red;">*</span>
+                        </span>
+                        <input type="text" class="form-control" id="app_full_file" name="app_full_file" placeholder="请输入应用程序目标" style="width: 100%;" >
+
+                    </div>
+
+                    <div class="input-line-space"></div>
+
+                    <div class="input-group" >
+                        <span class="input-group-addon" style="width: 120px;">起始位置：</span>
+                        <input type="text" class="form-control" id="app_work_path" name="app_work_path" placeholder="请输入应用程序起始位置" style="width: 100%;">
+                    </div>
+
+
+                </div> <!-- end div input-line -->
+
+                </div> <!-- end div host_data_list -->
+
+                <div>
+                    <h4></h4>
+                </div>
+
+            </div> <!-- end div operate_area -->
+
+            <div class="submit-area">
+                <button type="button" class="btn btn-primary" id="modify_btn" onclick="Javascript:onModifySubmit();">提交</button>
+                <button type="button" class="btn btn-default" id="cancel_btn" onclick="Javascript:onCancelSubmit();">关闭</button>
+            </div>
+
+        </div> <!-- end div panel-body -->
+
+    </div> <!-- end div panel -->
+
+</div> <!-- end div content_area -->
+
+<div class="foot_area">
+
+</div> <!-- end div foot_area -->
+
+</body>
+
+<script>
+
+    // 验证应用标题
+    $("#app_text").on('blur', function(){
+        onVerifyAppText();
+    })
+
+    window.onload = function() {
+        // 解析参数
+        parseUrlParams();
+
+        onInitData();
+
+        // 应用程序图标列表
+        onGetAppImageList();
+        // 应用组列表
+        onGetAppGroupList();
+        // 默认项主机列表
+        onGetHostList('host_ip_list');
+        // 注册事件
+        onRegistDropdownMenuEvent();
+
+    }
+
+    function parseUrlParams() {
+        var id = getQueryString('id');
+        document.getElementById('private_app_id').value = id;
+        if (id > 0) {
+
+            var app_text =getZhDecode(getQueryString('app_text'));
+            var app_image = getZhDecode(getQueryString('app_image'));
+            var group_id = getQueryString('group_id');
+            var status = getQueryString('status');
+            var remark = getZhDecode(getQueryString('remark'));
+
+            document.getElementById('private_app_text').value = app_text;
+            document.getElementById('private_app_image').value = app_image;
+            document.getElementById('private_app_group_id').value = group_id;
+            document.getElementById('private_app_status').value = status;
+            document.getElementById('private_app_remark').value = remark;
+
+        }
+
+    }
+
+    function onInitData() {
+
+        var app_id = document.getElementById('private_app_id').value;
+        if (app_id > 0) {
+            var app_text = document.getElementById('private_app_text').value;
+            var app_image = document.getElementById('private_app_image').value;
+            var app_status = document.getElementById('private_app_status').value;
+            var app_reamrk = document.getElementById('private_app_remark').value;
+
+            var app_image_url = '';
+            if (app_image != undefined && app_image != null) {
+                app_image_url = getBaseUrl() + '/' + app_image
+            }
+
+            $("#app_text").val(app_text);
+            $("#app_image").val(app_image);
+            $("#app_image_preview2").attr('src', app_image_url);
+            $("#remark").val(app_reamrk);
+
+            if (app_status == 1) {
+                $("#app_status").get(0).selectedIndex = 0;
+            }
+            else {
+                $("#app_status").get(0).selectedIndex = 1;
+            }
+
+            // 获取应用程序映射列表
+            onGetAppMapList(app_id);
+        }
+        else {
+            var app_image_url = '';
+            app_image_url = getBaseUrl() + '/images/white.png';
+            $("#app_image_preview2").attr('src', app_image_url);
+        }
+    }
+
+    function onCancelSubmit() {
+        window.close();
+    }
+
+    function onModifySubmit() {
+        if (!isInputDataValid('infoid')) {
+            return false;
+        }
+
+        var postData = onGetInputData();
+
+        var reqUrl = getBaseUrl() + '/manage/app_modify';
+
+        var user_name = getAdministratorName();
+
+        // 提交修改请求，成功则关闭窗口，刷新父窗口
+        onSubmitRequest(reqUrl, user_name, postData);
+    }
+
+    function onAddHostInputItemClick() {
+        if (onHostInputItemsValid()) {
+            onAppendHostInputItemDiv(null);
+        }
+    }
+
+    function onDeleteHostInputItemClick(e) {
+        var inputNode = e.parentNode;
+        var inputLineNode = inputNode.parentNode;
+        var listNode = inputLineNode.parentNode;
+        listNode.removeChild(inputLineNode);
+    }
+
+    function onSelectAppImage(user_data) {
+        // 选择应用程序图标
+        var user_data_arr = user_data.split(';');
+        if (user_data_arr.length >= 5) {
+            //var item_id = user_data_arr[0];
+            //var item_name = user_data_arr[1];
+            //var item_text = user_data_arr[2];
+            var item_image = user_data_arr[3];
+            //var item_remark = user_data_arr[4];
+
+            $("#app_image").val(item_image);
+
+            var app_img_url = '';
+            if (item_image != undefined && item_image != null) {
+                app_img_url = getBaseUrl() + '/' + item_image
+            }
+
+            $("#app_image_preview2").attr('src', app_img_url);
+        }
+    }
+
+    function onRegistDropdownMenuEvent() {
+        $(".dropdown").on('shown.bs.dropdown', function(e){
+            // 主机选择下拉菜单显示完成事件
+
+            // <div class="dropdown">
+            // </div>
+
+            // 获取选项所在项的IP地址框ID
+            var id = $(this).parent().parent().find("input[type='text']").attr("id");
+            if (id != undefined) {
+                $("#private_host_ip_id").attr('value', id);
+            }
+        })
+    }
+
+    function onSelectIp(user_data) {
+
+        var user_data_arr = user_data.split(';');
+        if (user_data_arr.length >= 4) {
+            var item_id = user_data_arr[0];
+            //var item_name = user_data_arr[1];
+            var item_ip_addr = user_data_arr[2];
+            //var item_remark = user_data_arr[3];
+
+            var host_ip_id = $("#private_host_ip_id").attr('value');
+
+            $("#" + host_ip_id).val(item_ip_addr);
+            $("#" + host_ip_id).attr('user-id', item_id);
+        }
+    }
+
+    function onGetAppMapList(app_id) {
+        if (app_id < 1) {
+            return false;
+        }
+
+        var reqUrl = getBaseUrl() + '/manage/app_map_query';
+        var postData = {
+            app_id: app_id,
+            time: new Date().getTime()
+        }
+
+        onQueryAppMaps('host_data_list', reqUrl, postData);
+    }
+
+    function onGetAppImageList() {
+        var reqUrl = getBaseUrl() + '/manage/image_list';
+
+        var postData = {
+            time: new Date().getTime()
+        }
+
+        var ctrl_id = 'app_image_list';
+        $("#" + ctrl_id).html('');
+        onQueryAppImages(ctrl_id, reqUrl, postData, onSelectAppImage);
+    }
+
+    function onGetHostList(ctrl_id) {
+        var reqUrl = getBaseUrl() + '/manage/host_query';
+
+        var postData = {
+            status: 1,
+            page_index: 1,
+            page_size: 1000,
+            page_count: 1,
+            time: new Date().getTime()
+        }
+
+        $("#" + ctrl_id).html('');
+        onQueryHosts(ctrl_id, reqUrl, postData, onSelectIp);
+    }
+
+    function onGetAppGroupList() {
+        var reqUrl = getBaseUrl() + '/manage/app_group_query';
+
+        var postData = {
+            time: new Date().getTime()
+        }
+
+        var ctrl_id = 'app_group_id';
+        var group_id = document.getElementById('private_app_group_id').value;
+        onQueryAppGroupSelectList(ctrl_id, group_id, reqUrl, postData);
+    }
+
+    function onQueryAppMaps(ctrl_id, reqUrl, postData) {
+        var user_name = getAdministratorName();
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var data = res;
+            var total_count = 0;
+            var status = data['status'];
+            if (status == 1) {
+                total_count = data['total_count'];
+            }
+            if (total_count > 0) {
+                var list = data['list'];
+
+                for(var idx = 0; idx < list.length; idx++) {
+                    var itemData = list[idx];
+
+                    if (idx == 0) {
+                        onSetDefaultHostInputItemDiv(itemData);
+                    }
+                    else {
+                        onAppendHostInputItemDiv(itemData);
+                    }
+                }
+
+            }
+        })
+
+    }
+
+    function onSetDefaultHostInputItemDiv(def_value) {
+        var id = 0;
+        var app_id = 0;
+        var host_id = 0;
+        var host_ip = '';
+        var app_full_file = '';
+        var app_work_path = '';
+        var app_param = '';
+        if (def_value != null) {
+            id = def_value.id;
+            app_id = def_value.app_id;
+            host_id = def_value.host_id;
+            host_ip = def_value.host_ip;
+            app_full_file = def_value.app_full_file;
+            app_work_path = def_value.app_work_path;
+            app_param = def_value.app_param;
+        }
+
+        $("#host_ip").attr('value', host_ip)
+        $("#host_ip").attr('user-id', host_id);
+
+        $("#app_full_file").attr('value', app_full_file);
+
+        $("#app_work_path").attr('value', app_work_path);
+
+        if (app_param != undefined && app_param != null && app_param.length > 0) {
+            $("#app_param").attr('value', app_param);
+        }
+    }
+
+    function onHostInputItemsValid() {
+        var warning_ctrl_id = 'infoid';
+        $("#" + warning_ctrl_id).html('');
+
+        var ip_list = [];
+        var ip_index = 0;
+
+        // 获取已选择IP列表，判断是否为空
+        var data_list = document.getElementById('host_data_list');
+        var inputs = data_list.getElementsByTagName('input');
+        for(var idx = 0; idx < inputs.length; idx++) {
+            var input_item = inputs[idx];
+
+            if (input_item.type != 'text') {
+                continue;
+            }
+
+            var item_name = input_item.getAttribute('name');
+            var item_value = input_item.value;
+
+            if (item_name == 'host_ip') {
+                if (item_value == undefined || item_value == null || item_value == '') {
+                    $("#" + warning_ctrl_id).html('请先选择已添加项的主机IP地址');
+                    return false;
+                }
+
+                ip_list[ip_index++] = item_value;
+            }
+        }
+
+        if (ip_list.length > 1) {
+            // 判断是否有重复项
+            for(var idx=0; idx<ip_list.length; idx++) {
+                var itemData = ip_list[idx];
+
+                for(var idy=0; idy<ip_list.length; idy++) {
+                    if (idx != idy) {
+                        var itemDataY = ip_list[idy];
+                        if (itemData == itemDataY) {
+                            var msg = itemData + ' IP地址有重复';
+                            $("#" + warning_ctrl_id).html(msg);
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function onAppendHostInputItemDiv(def_value) {
+        var ctrl_id = 'host_data_list';
+
+        var id = 0;
+        var app_id = 0;
+        var host_id = 0;
+        var host_ip = '';
+        var app_full_file = '';
+        var app_work_path = '';
+        if (def_value != null) {
+            id = def_value.id;
+            app_id = def_value.app_id;
+            host_id = def_value.host_id;
+            host_ip = def_value.host_ip;
+            app_full_file = def_value.app_full_file;
+            app_work_path = def_value.app_work_path;
+        }
+        else {
+            // 获取第一项做为默认值
+            app_full_file = $("#app_full_file").val();
+            app_work_path = $("#app_work_path").val();
+        }
+
+        // 双引号进行转义
+        app_full_file = utilOnReplace(app_full_file, '"', '&quot;');
+        app_work_path = utilOnReplace(app_work_path, '"', '&quot;');
+
+        // 获取主机添加项列表
+        var divInputLines = $("#" + ctrl_id + " .input-line");
+        var host_input_count = divInputLines.length;
+        var item_index = host_input_count + 1;
+
+        var host_ip_id = 'host_ip_' + item_index;
+        var host_ip_list_id = 'host_ip_list_' + item_index;
+
+        var innerHtml = '';
+
+        innerHtml += '<div>';
+        innerHtml += '<h4></h4>';
+        innerHtml += '</div>'
+
+        innerHtml += '<div class="input-line"';
+        innerHtml += '>';
+
+        innerHtml += '<div class="input-group"';
+        innerHtml += '>';
+
+        innerHtml += '<span class="input-group-addon" ';
+        innerHtml += ' style="width: 90px;"';
+        innerHtml += '>';
+        innerHtml += 'IP地址：';
+        innerHtml += '<span style="color: red;">*</span>';
+        innerHtml += '</span>';
+
+        innerHtml += '<input type="text" class="form-control" ';
+        innerHtml += 'name="host_ip" ';
+        innerHtml += ' id="' + host_ip_id + '" ';
+        innerHtml += 'readonly="readonly" ';
+        innerHtml += 'placeholder="请选择主机IP地址" ';
+        innerHtml += 'user-id="' + host_id +'" ';
+        innerHtml += 'value="' + host_ip + '" ';
+        innerHtml += 'style="width: 150px;" ';
+        innerHtml += '>';
+
+        innerHtml += '<span class="input-group-btn">';
+        innerHtml += '<div class="dropdown">';
+
+        innerHtml += '<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ';
+        innerHtml += 'style="width: 90px;" ';
+        innerHtml += '>';
+        innerHtml += '选择主机';
+        innerHtml += '<span class="caret"></span>';
+        innerHtml += '</button>';
+
+        innerHtml += '<div class="dropdown-menu pull-right" role="menu" aria-labelledby="host_ip_menu" ';
+        innerHtml += ' id="' + host_ip_list_id + '" ';
+        innerHtml += '>';
+        innerHtml += '</div>';
+
+        innerHtml += '</div>';
+        innerHtml += '</span>';
+
+        innerHtml += '</div>'; // end div input-group
+
+        innerHtml += '<div class="input-line-space"></div>';
+
+        innerHtml += '<div class="input-group">';
+
+        innerHtml += '<span class="input-group-addon" ';
+        innerHtml += 'style="width: 140px;" ';
+        innerHtml += '>';
+        innerHtml += '目标：';
+        innerHtml += '<span style="color: red;">*</span>';
+        innerHtml += '</span>'
+
+        innerHtml += '<input type="text" class="form-control" ';
+        innerHtml += 'name="app_full_file"';
+        innerHtml += 'placeholder="请输入应用程序目标" ';
+        innerHtml += 'value="' + app_full_file + '" ';
+        innerHtml += 'style="width: 100%;"';
+        innerHtml += '>';
+
+        innerHtml += '</div>'; // end div input-group
+
+        innerHtml += '<div class="input-line-space"></div>';
+
+        innerHtml += '<div class="input-group">';
+
+        innerHtml += '<span class="input-group-addon" ';
+        innerHtml += 'style="width: 120px;" ';
+        innerHtml +='>';
+        innerHtml += '起始位置：';
+        innerHtml += '</span>';
+
+        innerHtml += '<input type="text" class="form-control" ';
+        innerHtml += 'name="app_work_path" ';
+        innerHtml += 'placeholder="请输入应用程序起始位置" ';
+        innerHtml += 'value="' + app_work_path + '" ';
+        innerHtml += 'style="width: 100%;" ';
+        innerHtml += '>';
+
+        innerHtml += '</div>'; // end div input-group
+
+        innerHtml += '<div class="input-group">';
+
+        innerHtml += '<button type="button" class="btn btn-primary" ';
+        innerHtml += ' onclick="Javascript:onDeleteHostInputItemClick(this);" ';
+        innerHtml += 'style="width: 80px;" ';
+        innerHtml += '>';
+        innerHtml += '-删除主机';
+        innerHtml += '</button>';
+
+        innerHtml += '</div>'; // end div input-group
+
+        innerHtml += '</div>' // end div input-line
+
+        // 追加主机添加项
+        $("#" + ctrl_id).append(innerHtml);
+
+        // 初始化追加项的选择主机列表
+        onGetHostList(host_ip_list_id);
+
+        // 注册事件
+        onRegistDropdownMenuEvent();
+    }
+
+    function onVerifyAppText() {
+        var app_text = $("#app_text").val();
+        if (app_text.length > 0) {
+            var app_id = $("#private_app_id").val();
+            onIsVerify('infoid', app_id, app_text);
+        }
+    }
+
+    function onIsVerify(warning_ctrl_id, app_id, app_text) {
+        var reqUrl = getBaseUrl() + '/manage/app_verify';
+
+        var postData = {
+            id: app_id,
+            text: app_text,
+            time: new Date().getTime()
+        }
+
+        onSubmitWarningRequest('infoid', 'app_text', reqUrl, postData);
+    }
+
+    function isInputDataValid(warning_ctrl_id) {
+        $("#" + warning_ctrl_id).html('');
+        // 标题
+        if (!onCheckInputItemConfirm('app_text')) {
+            $("#" + warning_ctrl_id).html('应用标题不能为空');
+            return false;
+        }
+
+        // 验证标题唯一性
+        onVerifyAppText();
+
+        // 图标
+        if (!onCheckInputItemConfirm('app_image')) {
+            $("#" + warning_ctrl_id).html('应用程序图标不能为空');
+            return false;
+        }
+
+        // 主机列表
+        var data_list = document.getElementById('host_data_list');
+        var inputs = data_list.getElementsByTagName('input');
+        for(var idx = 0; idx < inputs.length; idx++) {
+            var input_item = inputs[idx];
+
+            if (input_item.type != 'text') {
+                continue;
+            }
+
+            var item_name = input_item.getAttribute('name');
+            var item_value = input_item.value;
+
+            if (item_name == 'host_ip') {
+                if (item_value == undefined || item_value == null || item_value == '') {
+                    $("#" + warning_ctrl_id).html('应用程序所在主机IP地址不能为空');
+                    return false;
+                }
+            }
+            else if (item_name == 'app_full_file') {
+                if (item_value == undefined || item_value == null || item_value == '') {
+                    $("#" + warning_ctrl_id).html('应用程序全目录名称不能为空');
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    function onGetInputData() {
+        // 应用信息
+        //var app_id = document.getElementById('private_app_id').value;
+        var app_id =$("#private_app_id").val();
+        var app_text = $("#app_text").val();
+        var app_image = $("#app_image").val();
+        var app_param = $("#app_param").val();
+        var app_remark = $("#remark").val();
+
+        // 所属组
+        var group_id = $("#app_group_id").find("option:selected").attr('id');
+
+        // 状态
+        var app_status = 1;
+        var app_status_text = $("#app_status").find("option:selected").text();
+        app_status = onGetStatusValue(app_status_text);
+
+        // 主机配置信息
+        var resHostList = [];
+
+        var host_id = 0;
+        var host_ip = '';
+        var app_full_file = '';
+        var app_work_path = '';
+        var host_index = 0;
+        $("#host_data_list input[type='text']").each(function(i){
+
+            var item_value = $(this).val();
+            var item_name = $(this).attr('name');
+            if (item_name == 'host_ip') {
+                host_id = $(this).attr('user-id');
+                host_ip = item_value;
+            }
+            else if (item_name == 'app_full_file') {
+                app_full_file = item_value;
+            }
+            else if (item_name == 'app_work_path') {
+                app_work_path = item_value;
+
+                var resHostItem = {
+                    host_id: host_id,
+                    host_ip: host_ip,
+                    app_full_file: app_full_file,
+                    app_work_path: app_work_path,
+                    remark: ''
+                };
+
+                resHostList[host_index++] = resHostItem;
+            }
+        })
+
+        var resData = {
+            id: app_id,
+            text: app_text,
+            image: app_image,
+            param: app_param,
+            group_id: group_id,
+            status: app_status,
+            remark: app_remark,
+            hosts: resHostList
+        };
+
+        return resData;
+    }
+
+    function valueIsEmpty(val) {
+        if (val == undefined || val == null || val.length == 0 || val == '' || val == {}) {
+            return true;
+        }
+        return false;
+    }
+
+    function onAutoGetImage() {
+        /*
+        // test
+        var testData = {
+            status:1,
+            name: 'mspaint.png',
+            size: 4369,
+            path: 'temp/mspaint.png'
+        };
+        onConfigAppImage(testData);
+        return false;
+        // end test
+        */
+
+        // 获取主机配置信息
+        var resHostList = [];
+
+        var host_id = 0;
+        var host_ip = '';
+        var app_full_file = '';
+        var app_work_path = '';
+        var host_index = 0;
+        $("#host_data_list input[type='text']").each(function(i){
+
+            var item_value = $(this).val();
+            var item_name = $(this).attr('name');
+            if (item_name == 'host_ip') {
+                host_id = $(this).attr('user-id');
+                host_ip = item_value;
+            }
+            else if (item_name == 'app_full_file') {
+                app_full_file = item_value;
+            }
+            else if (item_name == 'app_work_path') {
+                app_work_path = item_value;
+
+                var resHostItem = {
+                    host_id: host_id,
+                    host_ip: host_ip,
+                    app_full_file: app_full_file,
+                    app_work_path: app_work_path,
+                    remark: ''
+                };
+
+                resHostList[host_index++] = resHostItem;
+            }
+        })
+
+        var is_valid = false;
+        var idx = 0;
+        for(idx = 0; idx < resHostList.length; idx++) {
+            var itemData = resHostList[idx];
+            if (!valueIsEmpty(itemData.host_ip) && !valueIsEmpty(itemData.app_full_file)) {
+                is_valid = true;
+                break;
+            }
+        }
+
+        if (!is_valid) {
+            alert('请选择有效的IP地址和输入有效的目标');
+            return false;
+        }
+
+        var itemData = resHostList[idx];
+
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/manage/app_image_get';
+        var postData = {};
+
+        postData['ip'] = itemData.host_ip;
+        postData['app_full_file'] = itemData.app_full_file;
+        postData['time'] = new Date().getTime();
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+            }
+            else {
+                var itemData = res['data'];
+
+                // 用户确认图标
+                onConfigAppImage(itemData);
+            }
+        });
+    }
+
+    function onSetInputValue(id, val) {
+        $("#" + id).attr('value', val);
+    }
+
+    function onGetInputValue(id) {
+        return $("#" + id).attr('value');
+    }
+
+    function onConfigAppImage(itemData) {
+        if (itemData == null || itemData == {}) {
+            alert('参数错误');
+            return false;
+        }
+
+        var item_name = itemData['name'];
+        var item_size = itemData['size'];
+        var item_file = itemData['file'];
+
+        onSetInputValue('private_app_image_name', item_name);
+        onSetInputValue('private_app_image_file', item_file);
+        onSetInputValue('private_app_image_size', item_size);
+
+        $("#appImageConfirmDialog").modal('show');
+    }
+
+    $('#appImageConfirmDialog').on('show.bs.modal', function () {
+        var id = 'app_image_preview';
+
+        var img_file = onGetInputValue('private_app_image_file');
+        var img_url = getBaseUrl() + '/' + img_file;
+
+        $("#" + id).attr('src', img_url);
+    });
+
+    function onAppImageSubmit() {
+        $("#appImageConfirmDialog").modal('hide');
+
+        var image_name = onGetInputValue('private_app_image_name');
+        var image_file = onGetInputValue('private_app_image_file');
+        var image_size = onGetInputValue('private_app_image_size');
+
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/manage/app_image_confirm';
+
+        var postData = {
+            name: image_name,
+            file: image_file,
+            size: image_size,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+            }
+            else {
+                // { "id":16, "name":"notepad.png", "path":"images/app/auto", "size":"4825", "text":"notepad" }
+                var itemData = res['data'];
+
+                var item_id = itemData['id'];
+                var item_name = itemData['name'];
+                var item_path = itemData['path'];
+                var item_size = itemData['size'];
+                var item_text = itemData['text'];
+
+                var img_relate_file = item_path + '/' + item_name;
+                var img_url = getBaseUrl() + '/' + img_relate_file;
+
+                $("#app_image").val(img_relate_file);
+                $("#app_image_preview2").attr('src', img_url);
+
+            }
+        });
+    }
+
+</script>
+
+</html>

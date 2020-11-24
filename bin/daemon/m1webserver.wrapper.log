@@ -1,0 +1,11 @@
+2019-11-21 17:07:06 - SIGINT to 15584 failed - Killing as fallback
+2019-11-21 17:07:06 - Stopping process 15076
+2019-11-21 17:07:06 - Send SIGINT 15076
+2019-11-21 17:07:06 - SIGINT to 15076 failed - Killing as fallback
+2019-11-21 17:07:06 - Stopping process 11996
+2019-11-21 17:07:06 - Send SIGINT 11996
+2019-11-21 17:07:06 - SIGINT to 11996 failed - Killing as fallback
+2019-11-21 17:07:06 - Stopping process 15324
+2019-11-21 17:07:06 - Send SIGINT 15324
+2019-11-21 17:07:06 - SIGINT to 15324 failed - Killing as fallback
+2019-11-21 17:07:06 - Finished m1webserver.exe

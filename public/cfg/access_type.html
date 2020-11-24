@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>权限设置</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+
+</head>
+<body>
+
+<div class="hidden_data">
+    <!-- 隐藏分页信息 -->
+    <input type="hidden" id="private_page_start_index" value="1">
+    <input type="hidden" id="private_page_index" value="1">
+    <input type="hidden" id="private_page_size" value="20">
+    <input type="hidden" id="private_page_count" value="1">
+    <input type="hidden" id="private_page_btns" value="5">
+</div>
+
+<div class="modal fade" id="access_type_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true" >
+    <div class="modal-dialog" style="width: 450px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">权限设置</h4>
+            </div> <!-- end div modal-header -->
+            <div class="modal-body">
+                <form name="access_type_form" id="access_type_form_id" method="post" action="">
+                    <div class="input-group">
+                        <span class="input-group-addon" id="infoid" style="color: red;height: 30px;"> </span>
+                    </div>
+
+                    <div class="input-group" >
+                        <span class="input-group-addon">权限名称：</span>
+                        <input type="text" class="form-control" id="access_type_name" name="access_type_name" placeholder="请输入权限名称">
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+
+                    <div class="input-group" >
+                        <span class="input-group-addon">权限说明：</span>
+                        <input type="text" class="form-control" id="access_type_title" name="access_type_title" placeholder="请输入权限说明">
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+
+                    <div class="input-group" name="normal_frame">
+                        <span class="input-group-addon" style="width: 95px;">权限类型：</span>
+                        <select class="form-control" id="access_type_group_id" style="width: 290px;">
+                            <option value="0">用户权限</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group" name="normal_frame">
+                        <span class="input-group-addon" style="width: 95px;">备注：</span>
+                        <textarea class="form-control" rows="5" id="remark" name="remark" style="width: 290px;"></textarea>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add_user_btn" onclick="Javascript:onAccessTypeDialogSubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+        </div>
+    </div>
+</div>
+
+<div class="tab_page">
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">权限设置</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="panel-body">
+        <div class="option_area">
+            <div class="input-group" style="width: 90px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" id="btn_access_type_add" data-toggle="tooltip" title="添加一个新权限" onclick="Javascript:onAddAccessTypeBtnClick();"> + 添加权限</button>
+                </span>
+            </div>
+        </div>
+
+        <div class="data_area">
+            <table class="table table-bordered" id="tb_data_id">
+                <caption>权限列表</caption>
+                <thead id="tb_data_head_id">
+                <tr>
+                    <th>序号</th>
+                    <th>名称</th>
+                    <th>说明</th>
+                    <th>权限类型</th>
+                    <th>备注</th>
+                    <th>选项</th>
+                </tr>
+                </thead>
+                <tbody id="tb_data_body_id" class="table_decorate">
+                </tbody>
+            </table>
+        </div> <!-- end div data_area -->
+
+        <div class="page_area">
+            <ul class="pagination" id="page_id">
+                <!--<li><a href="#">&laquo;</a> </li>
+                <li><a href="#">1</a> </li>
+                <li><a href="#">2</a> </li>
+                <li><a href="#">&raquo;</a> </li>-->
+            </ul>
+        </div>
+
+        <div class="status_area">
+            <label id="status_max_records_id"></label>
+        </div> <!-- end div status_area -->
+
+    </div>
+
+</div>
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        onGetAccessType();
+
+    }
+
+    function onGetAccessType() {
+        var page_index = onGetPrivatePageIndex();
+        var page_size = onGetPrivatePageSize();
+        var page_count = onGetPrivatePageCount();
+
+        var reqUrl = getBaseUrl() + '/cfg/access_type';
+        var user_name = getAdministratorName();
+        var postData = {
+            page_index: page_index,
+            page_size: page_size,
+            page_count: page_count,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            var innerHtml = '';
+
+            var max_count = 0;
+            var count = 0;
+
+            if (status != 1) {
+                alert(msg);
+            }
+            else {
+                max_count = res['max_count'];
+                count = res['count'];
+
+                if (count > 0) {
+                    var list = res['list'];
+
+                    var start_index = (page_index - 1) * page_size + 1;
+                    innerHtml = onUpdateDatas(start_index, list);
+                }
+            }
+
+            // 数据列表
+            $('#tb_data_body_id').html(innerHtml);
+
+            // 分页栏
+            var page_btns = onGetPrivatePageBtns();
+            onUpdatePagination('page_id', page_index, page_size, page_btns, count, max_count, 'onPaginationBtnClick');
+
+            // 状态栏
+            var statusMaxsRecordsHtml = '记录数：' + max_count;
+            $('#status_max_records_id').html(statusMaxsRecordsHtml);
+
+        })
+    }
+
+    function onUpdateDatas(start_index, list) {
+        var innerHtml = '';
+
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            var itemInnerHtml = onGetItemHtml((start_index + idx), itemData);
+
+            innerHtml += itemInnerHtml;
+        }
+
+        return innerHtml;
+    }
+
+    function onGetItemHtml(index, itemData) {
+        var item_id = itemData.id;
+        var item_name = itemData.name;
+        var item_title = itemData.title;
+        var item_group_id = itemData.group_id;
+        var item_remark = itemData.remark;
+
+        if (item_remark == undefined || item_remark == null) {
+            item_remark = '';
+        }
+
+        var item_group_text = onGetGroupText(item_group_id);
+
+        var innerHtml = '';
+
+        innerHtml += '<tr ';
+        innerHtml += 'id="' + item_id + '" ';
+        innerHtml += 'name="' + item_name + '" ';
+        innerHtml += 'title="' + item_title +'" ';
+        innerHtml += 'group_id="' + item_group_id + '" ';
+        innerHtml += 'remark="' + item_remark + '" ';
+        innerHtml += '>';
+
+        innerHtml += '<td>';
+        innerHtml += index;
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += '<input type="text" ';
+        innerHtml += 'value="' + item_name + '" ';
+        innerHtml += 'onblur="Javascript:onNameBlur(this);" ';
+        innerHtml += ' style="width:100%; height:100%; " />';
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += '<input type="text" ';
+        innerHtml += 'value="' + item_title + '" ';
+        innerHtml += ' style="width:100%; height:100%; " />';
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += '<select';
+        innerHtml += ' style="width:100%; height: 100%;">';
+        innerHtml += '<option value="' + item_group_id + '" ';
+        innerHtml += '>';
+        innerHtml += item_group_text;
+        innerHtml += '</option>';
+        innerHtml += '</select>';
+        innerHtml += '</td>';
+
+        innerHtml += '<td>';
+        innerHtml += '<input type="text" ';
+        innerHtml += 'value="' + item_remark + '" ';
+        innerHtml += ' style="width:100%; height:100%; " />';
+        innerHtml += '</td>';
+
+        // 选项
+        innerHtml += '<td>';
+
+        innerHtml += '<input type="button" id="op_modify" title="" ';
+        innerHtml += 'value="修改" ';
+        innerHtml += 'onclick="Javascript:onOptionClick(1, this)" ';
+        innerHtml += ' />';
+
+        innerHtml += '&nbsp;&nbsp;<input type="button" id="op_delete" title="" ';
+        innerHtml += 'value="删除" ';
+        innerHtml += 'onclick="Javascript:onOptionClick(2, this)" ';
+        innerHtml += ' />';
+
+        innerHtml += '</td>';
+
+        innerHtml += '</tr>';
+
+        return innerHtml;
+    }
+
+    function onGetGroupText(group_id) {
+        var text = '用户权限'
+
+        return text;
+    }
+
+    function onNameBlur(elem) {
+        var tdElem = elem.parentNode;
+        var trElem = tdElem.parentNode;
+
+        var item_name = trElem.getAttribute('name');
+        var item_n_name = elem.value;
+
+        if (item_name == item_n_name) {
+            // 值没有变化
+            return false;
+        }
+
+        var reqUrl = getBaseUrl() + '/cfg/access_type_name_verify';
+        var user_name = getAdministratorName();
+        var postData = {
+            name: item_n_name,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            var count = 0;
+
+            if (status == 1) {
+                count = res['count'];
+            }
+
+            if (status != 1 || (status == 1 && count > 0)) {
+                // 恢复旧值
+                elem.value = item_name;
+
+                alert(item_n_name + ' 名称已经被占用');
+                return false;
+            }
+        });
+    }
+
+    function onOptionClick(op_idx, elem) {
+        var tdElem = elem.parentNode;
+        var trElem = tdElem.parentNode;
+
+        var item_id = trElem.getAttribute('id');
+        var item_title = trElem.getAttribute('title');
+
+        var is_modify = false;
+        var reqUrl = getBaseUrl() + '/cfg/access_type_modify';
+        var user_name = getAdministratorName();
+        var postData = {}
+
+        postData['id'] = item_id;
+
+        if (op_idx == 1) {
+            // 修改
+            var item_name = trElem.getAttribute('name');
+            var item_group_id = trElem.getAttribute('group_id');
+            var item_remark = trElem.getAttribute('remark');
+
+            var inputDatas = onGetTrInputTextDatas(trElem);
+
+            if (inputDatas == null) {
+                return false;
+            }
+
+            var item_n_name = inputDatas['name'];
+            var item_n_title = inputDatas['title'];
+            var item_n_group_id = inputDatas['group_id'];
+            var item_n_remark = inputDatas['remark'];
+
+            if (item_name != item_n_name || item_title != item_n_title || item_group_id != item_n_group_id || item_remark != item_n_remark) {
+                // 提交修改
+                postData['is_delete'] = false;
+                postData['name'] = item_n_name;
+                postData['title'] = item_n_title;
+                postData['group_id'] = item_n_group_id;
+                postData['remark'] = item_n_remark;
+                postData['time'] = new Date().getTime();
+
+                is_modify = true;
+            }
+            else {
+                alert('数据没有变化，无需修改');
+            }
+        }
+        else if (op_idx == 2) {
+            // 删除
+            var strWarm = '确定要删除 ' + item_title + ' 吗';
+            if (confirm(strWarm)) {
+                postData['is_delete'] = true;
+                postData['time'] = new Date().getTime();
+
+                is_modify = true;
+            }
+        }
+
+        if (is_modify) {
+            httpPostRequest(reqUrl, user_name, postData, function(res){
+                var status = res['status'];
+                var msg = res['msg'];
+
+                alert(msg);
+                // 更新
+                onGetAccessType();
+            });
+        }
+    }
+
+    function onGetTrInputTextDatas(trElem) {
+        var td_count = trElem.childNodes.length;
+
+        if (td_count < 5) {
+            return null;
+        }
+
+        var resData = {};
+
+        var tdNameElem = trElem.childNodes[1];
+        var tdTitleElem = trElem.childNodes[2];
+        var tdGroupElem = trElem.childNodes[3];
+        var tdRemarkElem = trElem.childNodes[4];
+
+        var itemNameValue = tdNameElem.childNodes[0].value;
+        var itemTitleValue = tdTitleElem.childNodes[0].value;
+
+        var groupSelectElem = tdGroupElem.childNodes[0];
+        var itemGroupSelectIndex = groupSelectElem.selectedIndex;
+        var itemGroupId = groupSelectElem.options[itemGroupSelectIndex].value;
+
+        var itemRemarkValue = tdRemarkElem.childNodes[0].value;
+
+        resData['name'] = itemNameValue;
+        resData['title'] = itemTitleValue;
+        resData['group_id'] = itemGroupId;
+        resData['remark'] = itemRemarkValue;
+
+        return resData;
+    }
+
+    function onPaginationBtnClick(index) {
+        var page_start_index = onGetPrivatePageStartIndex();
+        var page_btns = onGetPrivatePageBtns();
+
+        if (index == 0) {
+            // 上一页
+            var new_page_start_index = page_start_index - page_btns;
+            if (new_page_start_index < 1) {
+                new_page_start_index = 1;
+            }
+            onSetPrivatePageStartIndex(new_page_start_index);
+            onSetPrivatePageIndex(new_page_start_index);
+        }
+        else if (index == -1) {
+            // 下一页
+            var new_page_start_index = page_start_index + page_btns;
+
+            onSetPrivatePageStartIndex(new_page_start_index);
+            onSetPrivatePageIndex(new_page_start_index);
+        }
+        else {
+            onSetPrivatePageIndex(index);
+        }
+
+        onGetAccessType();
+    }
+
+    // 初始化添加权限对话框
+    $("#access_type_modal_dialog").on('show.bs.modal', function (){
+        onSetInfo('');
+    });
+
+    $("#access_type_name").on('blur', function(){
+       var value = $(this).val();
+        if (!onIsValid(value, '权限名称不能为空')) {
+            return false;
+        }
+
+        // 唯一性验证
+        var reqUrl = getBaseUrl() + '/cfg/access_type_name_verify';
+        var user_name = getAdministratorName();
+        var postData = {
+            name: value,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            var count = 0;
+            var item_id = 0;
+
+            if (status != 1) {
+                onSetInfo(msg);
+                $("#access_type_name").val(''); // 清空
+                return false;
+            }
+            else {
+                count = res['count'];
+                item_id = res['id'];
+
+                if (item_id > 0) {
+                    onSetInfo('权限名称已经存在，请使用其它名称');
+                    $("#access_type_name").val('');
+                    return false;
+                }
+            }
+        });
+    });
+
+    $("#access_type_title").on('blur', function(){
+        var value = $(this).val();
+        if (!onIsValid(value, '权限说明不能为空')) {
+            return false;
+        }
+    })
+
+    function onIsValid(value, fail_info_text) {
+        if (value == undefined || value == null || value.length < 1) {
+            onSetInfo(fail_info_text);
+            return false;
+        }
+
+        return true;
+    }
+
+    function onSetInfo(msg) {
+        $("#infoid").html(msg);
+    }
+
+    function onAddAccessTypeBtnClick() {
+        $("#access_type_modal_dialog").modal();
+    }
+
+    function onAccessTypeDialogSubmit() {
+        onSetInfo('');
+
+        var access_type_name = $("#access_type_name").val();
+        var access_type_title = $("#access_type_title").val();
+        var access_type_remark = $("#remark").val();
+
+        var access_type_group_id = $("#access_type_group_id option:selected").val();
+
+        if (!onIsValid(access_type_name, '权限名称不能为空')) {
+            return false;
+        }
+
+        if (!onIsValid(access_type_title, '权限说明不能为空')) {
+            return false;
+        }
+
+        var reqUrl = getBaseUrl() + '/cfg/access_type_modify';
+        var user_name = getAdministratorName();
+        var postData = {
+            is_delete: false,
+            id: 0,
+            name: access_type_name,
+            title: access_type_title,
+            group_id: access_type_group_id,
+            remark: access_type_remark,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                alert(msg);
+
+                // 更新数据
+                onGetAccessType();
+
+                $("#access_type_modal_dialog").modal('hide');
+            }
+        });
+    }
+
+</script>
+
+</html>

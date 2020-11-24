@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>授权应用管理</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+
+</head>
+<body>
+
+<!-- 资源选择对话框 -->
+<div class="modal fade" id="res_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="hidden_data_area">
+        <!-- 隐藏用户数据 -->
+        <input type="hidden" id="private_res_type" value="0"> <!-- 资源类型，0为用户，1为应用 -->
+        <input type="hidden" id="private_user_id" value="0">
+    </div> <!-- end div hidden_data_area -->
+
+    <div class="modal-dialog" id="res_dialog_id" style="width: 80%; max-height: 80%">
+        <div class="modal-content" >
+            <div class="modal-header">
+                <div class="btn" style="position: absolute; left: 220px; top: 10px;width: 64px;height: 32px;">
+                    <label><input type="checkbox" id="select_all_id" onclick="Javascripts:onChangeStatus();" >全选</label>
+                </div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="resModalLabel">资源列表</h4>
+            </div> <!-- end div modal-header -->
+
+            <div class="modal-body" style="height: 800px;">
+
+                <div>
+
+                    <div class="left_side">
+                        <div class="list-group" id="res_group_data_id">
+                            <!--<a href="Javascript:void(0);" class="list-group-item active">
+                                <h4 class="list-group-item-heading">
+                                    资源类型
+                                </h4>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <p class="list-group-item-text">
+                                    用户组一
+                                </p>
+                            </a>
+                            <a href="#" class="list-group-item">
+                                <p class="list-group-item-text">
+                                    所有用户
+                                </p>
+                            </a>-->
+                        </div>
+
+                    </div> <!-- end div left_side -->
+
+                    <div class="right_side">
+
+                        <div class="wrap-frame" id="res_data_id">
+
+                            <!--<div class="wrap-item">
+                                <div class="wrap-item-img">
+                                    <img src="../images/user3.png">
+                                </div>
+                                <div class="wrap-item-text">
+                                    div1
+                                </div>
+                                <div class="wrap-item-input">
+                                    <input type="checkbox" name="inside" value="" />
+                                </div>
+                            </div>
+                            <div class="wrap-item">
+                                <div class="wrap-item-img">
+                                    <img src="../images/user3.png">
+                                </div>
+                                <div class="wrap-item-text">
+                                    div2
+                                </div>
+                                <div class="wrap-item-input">
+                                    <input type="checkbox" name="inside" value="" />
+                                </div>
+                            </div>
+                            <div class="wrap-item">
+                                <div class="wrap-item-img">
+                                    <img src="../images/user3.png">
+                                </div>
+                                <div class="wrap-item-text">
+                                    欧阳丽梅
+                                </div>
+                                <div class="wrap-item-input">
+                                    <input type="checkbox" name="inside" value="" />
+                                </div>
+                            </div>
+                            -->
+
+                        </div>
+
+                    </div> <!-- end div right_side -->
+
+                </div>
+
+            </div> <!-- end div modal-body -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"  data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="add_res_btn" onclick="Javascript:onResDialogSubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+
+        </div> <!-- end div modal-content -->
+
+    </div> <!-- end div modal-dialog -->
+
+</div> <!-- end div modal fade -->
+
+
+
+<div class="head_area">
+
+</div> <!-- end div head_area -->
+
+<div class="content_area">
+
+    <div class="left_side">
+
+    </div> <!-- end div left_side -->
+
+    <div class="panel panel-info" style="width: 80%;">
+        <div class="panel-heading">
+            <h7 class="panel-title">授权应用</h7>
+        </div> <!-- end div panel-heading -->
+
+        <div class="panel-body">
+
+            <div class="operate_area">
+
+                <!-- 水平空格 -->
+                <div class="hor-space"></div>
+
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" id="select_user_btn" name="select_user_btn" onclick="Javascript:onSelectUserBtnClick();"> + 选择用户</button>
+                    </span>
+
+                    <div class="group-checkbox-list" id="user_group_mark_id">
+                        <!--<label class="checkbox-inline">
+                            <input type="checkbox" name="user_group_item" value="option1"> 选项 1
+                        </label>
+
+                        <label class="checkbox-inline">
+                            <input type="checkbox" name="user_group_item" value="option2"> 选项 2
+                        </label>
+
+                        <label class="checkbox-inline">
+                            <input type="checkbox" name="user_group_item" value="option3"> 选项3
+                        </label>-->
+                    </div>
+                </div>
+
+                <div class="data-list" id="user_data_list_id">
+
+                    <!--<div class="media-data-item" id="user_1">
+                        <div class="wrap-item-text">user1</div>
+                        <div class="wrap-item-input">
+                            <input type="button" value="移除" onclick="Javascript:onRemoveItemClick(this);" />
+                        </div>
+                    </div>
+
+                    <div class="media-data-item" id="user_2">
+                        <div class="wrap-item-text">user2</div>
+                        <div class="wrap-item-input">
+                            <input type="button" value="移除" onclick="Javascript:onRemoveItemClick(this);" />
+                        </div>
+                    </div>
+
+                    <div class="media-data-item" id="user_3">
+                        <div class="wrap-item-text">user3</div>
+                        <div class="wrap-item-input">
+                            <input type="button" value="移除" onclick="Javascript:onRemoveItemClick(this);" />
+                        </div>
+                    </div>-->
+
+                </div> <!-- end div data-list -->
+
+            </div> <!-- end div operate_area -->
+
+            <div class="operate_area">
+
+                <div class="hor-space"></div>
+
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" type="button" id="select_app_btn" name="select_app_btn" onclick="Javascript:onSelectAppBtnClick();"> + 选择应用</button>
+                    </span>
+
+                    <div class="group-checkbox-list" id="app_group_mark_id">
+                        <!--<label class="checkbox-inline">
+                            <input type="checkbox" name="user_group_item" value="option1"> AppGroup1
+                        </label>
+
+                        <label class="checkbox-inline">
+                            <input type="checkbox" name="user_group_item" value="option2"> AppGroup2
+                        </label>
+
+                        <label class="checkbox-inline">
+                            <input type="checkbox" name="user_group_item" value="option3"> AppGroup3
+                        </label>-->
+                    </div>
+
+                </div>
+
+                <div class="data-list" id="app_data_list_id">
+
+                    <!--<div class="multi-media-data-item" id="app_1">
+                        <div class="wrap-item-img">
+                            <img src="../images/user3.png">
+                        </div>
+                        <div class="wrap-item-text">app1</div>
+                        <div class="wrap-item-input">
+                            <input type="button" value="移除" onclick="Javascript:onRemoveItemClick(this);" />
+                        </div>
+                    </div>-->
+
+                </div> <!-- end div data-list -->
+
+            </div> <!-- end div operate_area -->
+
+            <div class="submit-area">
+                <button type="button" class="btn btn-primary" id="modify_btn" onclick="Javascript:onModifySubmit();">提交</button>
+                <button type="button" class="btn btn-default" id="cancel_btn" onclick="Javascript:onCancelSubmit();">关闭</button>
+            </div>
+
+        </div> <!-- end div panel-body -->
+
+    </div> <!-- end div panel -->
+
+</div> <!-- end div content_area -->
+
+<div class="foot_area">
+
+</div> <!-- end div foot_area -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        var user_id =  getQueryString('user_id');
+        if (user_id != undefined && user_id > 0) {
+            onGetAppAuthDetail(user_id);
+
+            // 禁用“选择用户”按钮
+            $("#select_user_btn").attr('disabled', 'disabled');
+            // 禁用用户项“移除”按钮
+            var user_item_id = 'user_' + user_id;
+            $("#" + user_item_id + " input[type=button]").attr('disabled', 'disabled');
+        }
+
+    }
+
+    function getResourceType() {
+        var type = $("#private_res_type").attr('value');
+        return type;
+    }
+    function setResourceType(value) {
+        $("#private_res_type").attr('value', value);
+    }
+    function clearGroupData() {
+        $("#res_group_data_id").html('');
+        $("#res_data_id").html('');
+    }
+
+    // 用户信息模态对话框初始化
+    $("#res_modal_dialog").on('show.bs.modal', function () {
+        clearGroupData();
+        var res_type = getResourceType();
+
+        var res_head_text = '';
+        if (res_type == 0) {
+            res_head_text = '用户组资源';
+            onSetUserGroupNavData();
+        }
+        else if (res_type == 1) {
+            res_head_text = '应用组资源';
+            onSetAppGroupData();
+        }
+
+        $("#resModalLabel").html(res_head_text);
+
+        // 禁用提交按钮
+        //$("#add_res_btn").attr('disabled', 'disabled');
+    })
+
+    function onSelectUserBtnClick() {
+        setResourceType(0);
+        // 显示模态对话框
+        $("#res_modal_dialog").modal();
+    }
+
+    function onSelectAppBtnClick() {
+        setResourceType(1);
+        // 显示模态对话框
+        $("#res_modal_dialog").modal();
+    }
+
+    function onChangeStatus() {
+        var is_checked = $("#select_all_id").prop('checked');
+
+        $("input[name='inside']:checkbox").each(function() {
+            $(this).prop("checked", is_checked);
+        });
+
+    }
+
+    // 添加资源对话框提交按钮事件
+    function onResDialogSubmit() {
+        var res_type = getResourceType();
+        var datas = getAllResSelectItem();
+
+        if (res_type == 0) {
+            onUpdateSelectedUsers(datas);
+        }
+        else if (res_type == 1) {
+            onUpdateSelectedApps(datas);
+        }
+
+        // 隐藏模态对话框
+        $("#res_modal_dialog").modal('hide');
+    }
+
+    function onGetAppAuthDetail(user_id) {
+        var reqUrl = getBaseUrl() + '/manage/app_auth_detail';
+        var user_ids = [user_id];
+        var postData = {
+            user_ids: user_ids
+        }
+        onQueryUserAuthDetail(reqUrl, postData);
+    }
+
+    function onCancelSubmit() {
+        window.close();
+    }
+
+    function onModifySubmit() {
+        var user_list = getAllSelectedUsers();
+        var app_list = getAllSelectedApps();
+
+        if (user_list == undefined || user_list.length < 1) {
+            var msg = '请选择用户';
+            alert(msg);
+            return false;
+        }
+
+        if (app_list == undefined || app_list.length < 1) {
+            var msg = '请选择应用';
+            alert(msg);
+            return false;
+        }
+
+        var user_ids = [];
+        for(var idx = 0; idx < user_list.length; idx++) {
+            var userItemData = user_list[idx];
+
+            user_ids[idx] = userItemData.id;
+        }
+
+        var reqUrl = getBaseUrl() + '/manage/app_auth_modify';
+
+        var postData = {
+            user_ids: user_ids,
+            app_list: app_list,
+            time: new Date().getTime()
+        }
+
+        var user_name = getAdministratorName();
+        onSubmitRequest(reqUrl, user_name, postData);
+    }
+
+    // onRemoveItemClick : 移除按钮事件
+    function onRemoveItemClick(element) {
+        var parentDiv = element.parentNode;
+        var itemDiv = parentDiv.parentNode;
+        //var id = itemDiv.getAttribute('id');
+        // 删除项
+        itemDiv.parentNode.removeChild(itemDiv);
+    }
+
+    function onNavGroupItemClick(id) {
+        $("#select_all_id").prop('checked', false);
+
+        var res_type = getResourceType();
+        if (res_type == 0) {
+            // 用户
+            var reqUrl = getBaseUrl() + '/manage/user_simple_query';
+            var postData = {
+                group_id: id,
+                status: 1,
+                page_index: 1,
+                page_size: 1000,
+                page_count:1,
+                time: new Date().getTime()
+            }
+            onSetUserSimpleData('res_data_id', reqUrl, postData);
+        }
+        else if (res_type == 1) {
+            // 应用
+            var reqUrl = getBaseUrl() + '/manage/app_simple_query';
+            var postData = {
+                group_id: id,
+                status: 1,
+                page_index: 1,
+                page_size: 1000,
+                page_count:1,
+                time: new Date().getTime()
+            }
+            onSetAppSimpleData('res_data_id', reqUrl, postData);
+        }
+    }
+
+    function onSetUserGroupNavData() {
+        var reqUrl = getBaseUrl() +  '/manage/user_group_query';
+        var postData = {
+            time: new Date().getTime()
+        }
+        onSetGroupNavData('res_group_data_id', reqUrl, postData, '用户组列表');
+    }
+
+    function onSetAppGroupData() {
+        var reqUrl = getBaseUrl() +  '/manage/app_group_query';
+        var postData = {
+            time: new Date().getTime()
+        }
+        onSetGroupNavData('res_group_data_id', reqUrl, postData, '应用组列表');
+    }
+
+    function onQueryUserAuthDetail(reqUrl, postData) {
+        var user_name = getAdministratorName();
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var total_count = 0;
+            if (status != 1) {
+                var msg = res['msg'];
+                onErrorHandle(status, msg);
+            }
+            else {
+                total_count = res['total_count'];
+            }
+            if (total_count > 0) {
+                var userList = [];
+                var appList = [];
+
+                var list = res['list'];
+                for(var idx = 0; idx < list.length; idx++) {
+                    var itemData = list[idx];
+
+                    var item_id = itemData.id;
+                    var item_user_id = itemData.user_id;
+                    var item_user_name = itemData.user_name;
+                    var item_app_id = itemData.app_id;
+                    var item_app_text = itemData.app_text;
+                    var item_app_image = itemData.app_image;
+                    var item_remark = itemData.remark;
+
+                    var item_img = getDefaultUserImage();
+
+                    if (idx == 0) {
+                        var user_user_data = item_user_id + ';' + item_user_name + ';' + '';
+                        var userItemData = {
+                            id: item_user_id,
+                            name: item_user_name,
+                            image: item_img,
+                            user_data: user_user_data
+                        }
+                        userList[0] = userItemData;
+                    }
+
+                    var item_app_img = getBaseUrl() + '/' + item_app_image;
+                    var app_user_data = item_app_id + ';' + item_app_text + ';' + item_app_image + ';' + item_remark;
+                    var appItemData = {
+                        id: item_app_id,
+                        name: item_app_text,
+                        image: item_app_img,
+                        user_data: app_user_data
+                    }
+                    appList[idx] = appItemData;
+                }
+
+                onUpdateSelectedUsers(userList);
+
+                onUpdateSelectedApps(appList);
+            }
+
+            $("#private_user_id").attr('value', postData.user_ids[0]);
+        })
+
+    }
+
+    function getAllResSelectItem() {
+        var list = [];
+        var idx = 0;
+        $("#res_dialog_id .wrap-item").each(function(i){
+            var item_check = $(this).find('.wrap-item-input input[name="inside"]').prop('checked');
+            if (item_check) {
+                var item_id = $(this).attr('id');
+                var item_user_data = $(this).attr('user-data');
+                var item_img = $(this).find('img').attr('src');
+                var item_text = $(this).find('.wrap-item-text').text();
+
+                var itemData = {
+                    id: item_id,
+                    name: item_text,
+                    image: item_img,
+                    user_data: item_user_data
+                }
+                list[idx++] = itemData;
+            }
+        });
+
+        return list;
+    }
+
+    function onUpdateSelectedUsers(datas) {
+        var ctrl_id = 'user_data_list_id';
+        var class_name = 'multi-media-data-item';
+        var id_head = 'user_';
+
+        // 删除过期项
+        //onRemoveOverdueItem(ctrl_id, class_name, datas);
+
+        // 增加新增项
+        onAddNewItem(ctrl_id, class_name, id_head, datas);
+    }
+
+    function onUpdateSelectedApps(datas) {
+        var ctrl_id = 'app_data_list_id';
+        var class_name = 'multi-media-data-item';
+        var id_head = 'app_';
+        // 删除过期项
+        //onRemoveOverdueItem(ctrl_id, class_name, datas);
+
+        // 增加新增项
+        onAddNewItem(ctrl_id, class_name, id_head, datas);
+    }
+
+    function onRemoveOverdueItem(ctrl_id, class_name, datas) {
+        var rootNode = document.getElementById(ctrl_id);
+        // 查找第一子列表
+        var firstChildDivNodes = rootNode.getElementsByClassName(class_name);
+        for(var idx = firstChildDivNodes.length - 1; idx >= 0; idx--) {
+            var itemDiv = firstChildDivNodes[idx];
+
+            var item_id = itemDiv.getAttribute('id');
+            var id = item_id.substr(item_id.indexOf('_') + 1);
+
+            if (!isExists(id, datas)) {
+                itemDiv.parentNode.removeChild(itemDiv);
+            }
+        }
+    }
+
+    function onAddNewItem(ctrl_id, class_name, id_head, datas) {
+        var rootNode = document.getElementById(ctrl_id);
+        for(var idx = 0; idx < datas.length; idx++) {
+            var itemData = datas[idx];
+            var item_id = id_head + itemData.id;
+
+            var itemDiv = document.getElementById(item_id);
+            if (itemDiv == undefined) {
+                var newNode = CreateNewNode(id_head, itemData);
+                if (newNode != undefined) {
+                    rootNode.appendChild(newNode);
+                }
+            }
+        }
+    }
+
+    function isExists(value, list) {
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+            if (value == itemData.id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function CreateNewNode(id_head, itemData) {
+
+        var innerHtml = '';
+        var item_id = id_head + itemData.id;
+        var item_user_data = itemData.user_data;
+        var new_node = document.createElement('div');
+
+        /*if (id_head == 'user_') {
+            new_node.setAttribute('class', 'media-data-item');
+        }
+        else if (id_head == 'app_') {
+            new_node.setAttribute('class', 'multi-media-data-item');
+
+            // 图片
+            innerHtml += '<div class="wrap-item-img">';
+
+            innerHtml += '<img src="' + itemData.image + '">';
+
+            innerHtml += '</div>';
+
+        }*/
+
+        new_node.setAttribute('class', 'multi-media-data-item');
+        new_node.setAttribute('id', item_id);
+        new_node.setAttribute('user-data', item_user_data);
+
+        // 图片
+        innerHtml += '<div class="wrap-item-img">';
+
+        innerHtml += '<img src="' + itemData.image + '">';
+
+        innerHtml += '</div>';
+
+        // 文本
+        innerHtml += '<div class="wrap-item-text">' + itemData.name + '</div>';
+
+        innerHtml += '<div class="wrap-item-input">';
+
+        innerHtml += '<input type="button" value="移除" onclick="Javascript:onRemoveItemClick(this);" />';
+
+        innerHtml += '</div>';
+
+        new_node.innerHTML += innerHtml;
+
+        return new_node;
+
+    }
+
+    // getAllSelectedUsers: 获取所有选中的用户
+    function getAllSelectedUsers() {
+        var ctrl_id = 'user_data_list_id';
+        var class_name = 'multi-media-data-item';
+        var user_data = 'user-data';
+
+        var list = [];
+        var idx = 0;
+        $("#" + ctrl_id + " ." + class_name).each(function(i){
+            var item_user_data = $(this).attr(user_data);
+            var datasets = item_user_data.split(';');
+            if (datasets != undefined && datasets.length >= 3) {
+                var itemData = {
+                    id: datasets[0],
+                    name: datasets[1],
+                    remark: datasets[2]
+                }
+                list[idx++] = itemData;
+            }
+        });
+
+        return list;
+    }
+
+    // getAllSelectedApps: 获取所有选中的应用
+    function getAllSelectedApps() {
+        var ctrl_id = 'app_data_list_id';
+        var class_name = 'multi-media-data-item';
+        var user_data = 'user-data';
+        var list = [];
+        var idx = 0;
+        $("#" + ctrl_id + " ." + class_name).each(function(i){
+            var item_user_data = $(this).attr(user_data);
+            var datasets = item_user_data.split(';');
+            if (datasets != undefined && datasets.length >= 3) {
+                var itemData = {
+                    id: datasets[0],
+                    text: datasets[1],
+                    image: datasets[2],
+                    remark: datasets[3]
+                }
+                list[idx++] = itemData;
+            }
+        });
+
+        return list;
+    }
+
+</script>
+
+</html>

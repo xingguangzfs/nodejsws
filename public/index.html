@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>一山云平台</title>
+    <!--<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1.0, minimum-scale=600px, maximum-scale=1.0, user-scalable=yes">-->
+    <!-- 引入CSS -->
+    <link href="stylesheets/style.css" type="text/css" rel="stylesheet" />
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="/third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="/third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="/third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="/third_part/jquery/jquery.min.js"></script>
+
+    <script src="/third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="/third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script src="/third_part/JSON-js-master/json2.js"></script>
+    <script src="/javascripts/com_page_op.js"></script>
+    <script src="/javascripts/mouse_drag.js"></script>
+    <script src="/javascripts/local_storage.js"></script>
+    <script src="/javascripts/http.js"></script>
+    <script src="/javascripts/protocolcheck.js"></script>
+
+</head>
+
+<body>
+
+<!-- 自定义内部数据区域，对用户不可见 -->
+<div class="data_area">
+    <input type="hidden" id="private_user_id" name="user_item", value="0">
+    <input type="hidden" id="private_user_name" name="user_name" value="">
+    <input type="hidden" id="private_login_status" name="login_status" value="0">
+    <input type="hidden" id="private_user_role" name="user_role" value="normal">
+</div>
+
+<img id="desk_background_image" src="images/desk_gb.jpg">
+<img id="task_background_image" src="images/task_bar_bg.png">
+
+<!--<div class="alert alert-warning" id="plugin_warning" >
+    <a href="#" class="close" data-dismiss="alert" aria-hidden="true">
+        &times;
+    </a>
+    <strong>检测插件失败，请重新安装插件！</strong>
+    <a href="./download/PluginSetup.exe" download="PluginSetup.exe"><font color="blue">插件安装</font></a>
+</div>-->
+
+<!-- 插件安装提示框 -->
+<div class="modal fade" id="plugin_warn" tabindex="-1" role="dialog" aria-labelledby="plugin_modal_label" aria-hidden="true">
+    <div class="modal-dialog" style="width: 350px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h5 class="modal-title" id="plugin_modal_label">警告</h5>
+            </div>
+            <div class="modal-body">
+                <strong>插件检测失败，请重新安装插件！</strong>
+                <a href="./download/PluginSetup.exe" download="PluginSetup.exe"><font color="blue">插件安装</font></a>
+            </div>
+            <div class="modal-footer">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" onclick="Javascripts:onPluginWarnStatusClick(this);">不再提醒
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 用户设置列表 -->
+<div class="modal fade" id="uset_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" id="uset_dialog_id" style="width: 80%; max-height: 80%">
+        <div class="modal-content" style="width: 800px;" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="resModalLabel">用户设置</h4>
+            </div>
+
+            <div class="modal-body" style="height: 500px;">
+
+                <div>
+
+                    <div class="normal_left_side">
+
+                        <div class="panel panel-primary">
+                            <div class="panel-heading" >
+                                <h5 class="panel-title">选项</h5>
+                            </div> <!-- end div panel-heading -->
+
+                            <div class="panel-body" >
+                                <ul class="list-group" id="uset_nav_body">
+                                    <li class="list-group-item"><a href="Javascript:void(0);" onclick="Javascript:onUsetSetItemClick(this.innerHTML);">密码修改</a> </li>
+                                    <li class="list-group-item"><a href="Javascript:void(0);" onclick="Javascript:onUsetSetItemClick(this.innerHTML);">更换桌面</a> </li>
+
+                                </ul>
+
+                            </div> <!-- end div panel-body -->
+
+                        </div> <!-- end div panel -->
+
+                    </div> <!-- end div left_side -->
+
+                    <div class="normal_right_side">
+
+                        <div class="panel panel-info" >
+                            <div class="panel-heading">
+                                <h5 class="panel-title" id="uset_page_head_id"></h5>
+                            </div> <!-- end div panel-heading -->
+                        </div> <!-- end div panel -->
+
+                        <div class="panel-body"  >
+                            <div id="uset_page_id" style="width: 560px; height: 420px;">
+
+                            </div>
+
+                        </div> <!-- end div panel-body -->
+
+
+                    </div> <!-- end div right_side -->
+
+                </div>
+
+            </div> <!-- end div modal-body -->
+
+            <div class="modal-footer">
+                <!--<button type="button" class="btn btn-default"  data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="add_res_btn" onclick="Javascript:onUsetDialogSubmit();">提交</button>-->
+            </div> <!-- end div modal-footer -->
+
+        </div> <!-- end div modal-content -->
+
+    </div> <!-- end div modal-dialog -->
+
+</div>
+
+<!-- 插件安装提示模态对话框 -->
+<div class="modal fade" id="plugin_download_dialog" tabindex="-1" role="dialog" aria-labelledby="image_select_label" aria-hidden="true">
+    <div class="modal-dialog" style="width:400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>插件下载窗口</h5>
+            </div>
+            <div class="modal-body" id="plugin_download_body">
+                <strong>检测插件失败，请重新下载安装插件！</strong>
+                <a href="./download/PluginSetup.exe" download="PluginSetup.exe"><font color="blue">插件下载</font></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="about_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" id="about_dialog_id" style="width: 760px; max-height: 600px">
+        <div class="modal-content" style="width: 700px;" >
+            <div class="modal-header">
+                <div class="def-flex-line">
+                    <div class="def-flex-item">
+                        <h7 class="panel-title">联系我们</h7>
+                    </div>
+                    <div class="def-flex-item" style="margin-left:30%;">
+                        <h2 class="panel-title"><span><img src="images/m1log32.png" width="24" height="24" style="margin-top: -5px;" /> </span>&nbsp;广州一山软件有限公司</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="def-flex-line">
+                    <div class="def-flex-item">
+                        <div>
+                            <img src="images/QRcode.png" width="128" height="128" />
+                        </div>
+                    </div>
+
+                    <div class="def-line-item" style="margin-left: 30px;">
+                        <div>
+                            <p class="def-item-label">地址：<span class="def-item-text">广州市天河区中山大道中1105号和安堡商业大厦324室</span></p>
+                        </div>
+
+                        <div>
+                            <p class="def-item-label">电话：<span class="def-item-text">135 3872 5505</span></p>
+                        </div>
+
+                        <div>
+                            <p class="def-item-label">邮箱：<span class="def-item-text">mountone@qq.com</span></p>
+                        </div>
+
+                        <div>
+                            <p class="def-item-label">微信：<span class="def-item-text">yishan1973</span></p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"  data-dismiss="modal">确定</button>
+            </div> <!-- end div modal-footer -->
+        </div>
+    </div>
+</div>
+
+<div class="deskContain" id="deskContain">
+    <div id="desktop">
+        <table id="app">
+
+        </table>
+        <!--
+        APP应用列表
+        <ul id="app">
+
+             <li><a href="GroupAgent:// /v:192.168.0.3 /u:user /p:Now20160901 /app:&quot;||mspaint&quot;">
+                 <img src="images/app/computer.png"><br />
+                 Computer</a>
+             </li>
+             <li app_url="GroupAgent:// /v:192.168.0.3 /u:user /p:Now20160901 /app:&quot;||notepad&quot;">
+                 <img src="images/app/recycle.png"><br />
+                 <span>Recycle</span>
+             </li>
+
+        </ul>
+        -->
+    </div>
+
+    <div class="cloud-wrap-frame" id="cloud_folder">
+        <!--<div class="cloud-wrap-item dropdown-toggle" id="cloud_folder_id" data-toggle="collapse" data-target="#cloud_app_list">-->
+        <div class="cloud-wrap-item" id="cloud_folder_id" ondblclick="Javascript:onDbClickCloudFolder();" data-toggle="tooltip" title="双击进入云空间">
+            <div class="cloud-wrap-image">
+                <img src="images/cloud_folder2.png">
+            </div>
+            <div class="cloud-wrap-text">
+                我的云空间
+            </div>
+        </div>
+        <div class="collapse" id="cloud_app_list">
+            <div class="list-group">
+                <div class="list-group-item">
+                    <!--<button type="button" class="btn btn-primary btn-sm btn-block" onclick="Javascript:onClickCloudPre();">返回桌面</button>-->
+                    <a href="Javascript:void(0);" onclick="Javascript:onClickCloudPre();" style="text-decoration: underline">返回桌面</a>
+                </div>
+
+                <div class="list-group-item">
+                    <div class="cloud-data-item" ondblclick="Javascript:onDbclickCloudApp('cloud_disk');" data-toggle="tooltip" title="双击打开云盘">
+                        <div class="cloud-data-image">
+                            <img src="images/cloud_disk3.png">
+                        </div>
+                        <div class="cloud-data-text">
+                            我的云盘
+                        </div>
+                    </div>
+                </div>
+
+                <div class="list-group-item">
+                    <div class="cloud-data-item" ondblclick="Javascript:onDbclickCloudApp('cloud_task');" data-toggle="tooltip" title="双击查看云任务">
+                        <div class="cloud-data-image">
+                            <img src="images/cloud_task.png">
+                        </div>
+                        <div class="cloud-data-text">
+                            我的云任务
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="taskbar">
+        <div class="btn-group dropup" id="startmenu" >
+            <!-- 开始菜单按钮 -->
+            <!--<button type="button" class="btn btn-link" data-toggle="dropdown" id="btn_tool_menu" style="font:16px arial,sans-serif;width:80px;color: ivory;">主菜单</button>-->
+            <div class="start-menu-btn" data-toggle="dropdown" id="btn_tool_menu" >
+                <img data-toggle="tooltip" title="开始" src="images/64x64-btn.png" >
+            </div>
+            &nbsp;&nbsp;
+            <ul class="dropdown-menu" id="tool_menu_btn">
+                <div class="dropdown-left">
+                    <li><a href="./download/PluginSetup.exe" id="plugin_download" download="PluginSetup.exe"><img src="images/app/tool.png">插件下载</a></li>
+                    <li><a href="./download/云平台用户手册.pdf" id="manual_download" download="云平台用户手册.pdf"><img src="images/app/pdf.png">手册下载</a></li>
+                    <li><a href="javascript:void(0);" target="_self" onclick="Javascript:onUsetClick();"><img src="images/app/setting2.png">用户设置</a> </li>
+                    <li><a href="javascript:void(0);" target="_self" onclick="Javascript:onAboutClick();"><img src="images/app/about.png">联系我们</a> </li>
+                    <li style="border-bottom: none;"><a href="javascript:void(0);" target="_self" onclick="javascript:onLogoutClick();" ><img src="images/app/exit.png">注  销</a> </li>
+
+                </div>
+
+                <div class="dropdown-right">
+                    <!-- 菜单头 -->
+                    <div class="dropdown-header" style=" margin-top: 0px; height: 0px;opacity: 0.8;" >
+                        <div class="input-group" id="tool_menu_user" >
+                        </div>
+                        <a href="#" id="menu_user_btn"></a>
+                    </div>
+                </div>
+
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+<script language="JavaScript" >
+
+    function getBaseUrl() {
+        var basePath = window.location.protocol + '//' + window.location.host ;
+        return basePath;
+    }
+
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        // var r = window.location.search.substr(1).match(reg);
+        var substr = window.location.search.substr(1);
+        if (substr == null || substr.length < 1)
+            return null;
+        var r = substr.match(reg);
+        if (r != null)
+            return unescape(r[2]);
+        return null;
+    }
+
+    $(window).resize(function(){
+        // 窗口变化事件
+        OnSetPageBackground(true);
+    })
+
+    window.onload = function() {
+        // 初始化客户端
+        onInitClient();
+
+        // 窗口初始化事件
+        OnSetPageBackground(false);
+
+        // 初始化页面
+        onInitPage();
+
+    }
+
+    // 屏蔽掉H5的拖拽事件，IE8不支持
+    document.ondragstart = function(ev) {
+        if (ev && ev.preventDefault) {
+            ev.preventDefault();
+        }
+        else {
+            return false;
+        }
+    };
+    document.ondragend = function(ev) {
+        if (ev && ev.preventDefault) {
+            ev.preventDefault();
+        }
+        else {
+            return false;
+        }
+    };
+
+    function OnSetPageBackground(resize) {
+        // 最大桌面宽与最大桌面高，类似于分辨率
+        var task_h = getMaxTaskHeight();
+        var dw = getMaxDeskWidth();
+        var dh = getMaxDeskHeight();
+
+        // 页面最小尺寸限制
+        var min_w = getTableMinWidth();
+        var min_h = getTableMinHeight();
+        if (resize && dw < min_w && dh < min_h) {
+            return;
+        }
+
+        dw = (dw >= min_w ? dw : min_w);
+        dh = (dh >= min_h ? dh : min_h);
+        var task_w = dw;
+        // 需要设置图片position:absolute;这个CSS属性
+        // 桌面背景图片
+        var desk_bk_image = document.getElementById('desk_background_image');
+        desk_bk_image.style.position = "absolute";
+        desk_bk_image.style.left = "0px";
+        desk_bk_image.style.top = "0px";
+        desk_bk_image.style.width = dw + 'px';
+        desk_bk_image.style.height = dh + 'px';
+
+        // 任务栏背景图片
+        var ttop = dh - task_h;
+        var task_bk_image = document.getElementById('task_background_image');
+        task_bk_image.style.position = "absolute";
+        task_bk_image.style.left = "0px";
+        task_bk_image.style.top = ttop +'px';
+        task_bk_image.style.width = task_w + 'px';
+        task_bk_image.style.height = task_h + 'px';
+
+        // 任务栏菜单
+        var task_m_t = ttop;
+        var task_menu = document.getElementById('taskbar');
+        task_menu.style.position = "absolute";
+        task_menu.style.left = "0px";
+        task_menu.style.top = task_m_t + 'px';
+        task_menu.style.width = task_w + 'px';
+        task_menu.style.height = task_h + 'px';
+
+        // 隐藏开始菜单列表
+        var start_menu = document.getElementById('startmenu');
+        start_menu.style.top = '-8px';
+        start_menu.style.height = '0px';
+
+        // 表格容器
+        OnTableModify('app', dw, (dh - task_h));
+    }
+
+    function onSetBackgroundImage() {
+        // 设置主题背景
+        // 用户角色
+        var user_role = getPageUserRole();
+        if (user_role == 'normal') {
+            var reqUrl = getBaseUrl() + '/manage/user_ext_query';
+
+            var user_id = getPageUserId();
+            var user_name = getPageUserName();
+
+            var postData = {
+                user_id: user_id,
+                ext_list: [
+                    {
+                        name:'ext_f0'
+                    }
+                ],
+                time: new Date().getTime()
+            }
+
+            httpPostRequest(reqUrl, user_name, postData, function(res){
+                var data = res;
+                var img_url = '';
+                var status = data['status'];
+                var total_count = 0;
+                if (status == 1) {
+                    total_count = data['total_count'];
+                }
+                else {
+                    var msg = data['msg'];
+                    onErrorHandle(status, msg);
+                }
+                if (total_count > 0) {
+                    var list = data['list'];
+
+                    var itemData = list[0];
+
+                    var ext_f0 = itemData.ext_f0;
+                    if (ext_f0 != undefined && ext_f0.length > 0) {
+                        img_url = getBaseUrl() + '/' + ext_f0;
+                    }
+                }
+
+                if (img_url.length > 0) {
+                    $("#desk_background_image").attr('src', img_url);
+                }
+            })
+
+        }
+    }
+
+    function onInitPage() {
+        // 获取参数
+        var status = getQueryString("status");
+        var id = getQueryString("id");
+        var name = getZhDecode(getQueryString("name"));
+        var role = getQueryString("role");
+        var license = getQueryString('license');
+        if (id != null && id.length > 0 &&
+                name != null && name.length > 0 &&
+                role != null && role.length > 0) {
+
+            setPageLoginStatus(status);
+            setPageUserId(id);
+            setPageUserName(name);
+            setPageUserRole(role);
+        }
+
+        // 获取登录状态
+        var login_status = getPageLoginStatus();
+        // 用户角色
+        var user_role = getPageUserRole();
+        if (login_status != 1) {
+            // 跳转到登录页面
+            window.location.href = 'login.html';
+        }
+        else if (user_role == 'normal') {
+            // 普通用户
+            onSetBackgroundImage();
+
+            // 开始菜单头
+            var menu_head_html = name;
+            $("#menu_user_btn").html(menu_head_html);
+
+            // 获取APP列表
+            getUserAppListTable();
+        }
+        else if (isAdministrator(user_role)) {
+            // 管理员用户
+
+            // 用户名称
+            var user_name = getPageUserName();
+            var gotoUrl = "manage.html";
+            gotoUrl += "?id=" + id;
+            gotoUrl += "&name=" + user_name;
+            gotoUrl += "&license=" + license;
+
+            window.location.href = gotoUrl;
+        }
+    }
+
+    function getUserAppListTable() {
+        var reqUrl = getBaseUrl() + '/manage/user_app_query';
+
+        var user_id = getPageUserId();
+        var user_name = getPageUserName();
+
+        // 请求用户配置应用
+        var postData = {};
+        postData['user_id'] = user_id;
+        postData['time'] = new Date().getTime();
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var data = res;
+
+            var status = data['status'];
+            if (status != 1) {
+                // 更新应用列表
+                document.getElementById('app').innerHTML = '';
+                return false;
+            }
+
+            var desk_w = getMaxDeskWidth();
+            var desk_h = getMaxDeskHeight();
+            desk_h -= getMaxTaskHeight();
+
+            var desk_app_w = getDeskAppWidth();
+            var desk_app_h = getDeskAppHeight();
+
+            var tb_rows = getDeskTableRows(desk_h, desk_app_h); // parseInt(desk_h / desk_app_h - 1); //
+            var tb_columns = getDeskTableColumns(desk_w, desk_app_w); // parseInt(desk_w / desk_app_w - 1);
+
+            // 创建表格
+            var tb = OnTableCreate("app", tb_rows, tb_columns, desk_w, desk_h, desk_app_w, desk_app_h);
+            if (tb == undefined) {
+                return;
+            }
+
+            // 更新表格数据
+
+            var list = data['list'];
+
+            if (list && list.length > 0) {
+
+                for (var idx = 0; idx < list.length; idx++) {
+                    var item_node = list[idx];
+                    if (!item_node)
+                        continue;
+
+                    var itemId = item_node['id'];
+                    var itemUserId = item_node['user_id'];
+                    var itemAppId = item_node['app_id'];
+                    var itemAppText = item_node['app_text'];
+                    var itemAppImage = item_node['app_image'];
+                    var itemStatus = item_node['status'];
+                    var itemXLeft = item_node['x_left'];
+                    var itemYTop = item_node['y_top'];
+                    var itemRemark = item_node['remark'];
+
+                    var item_img = getBaseUrl() + '/' + itemAppImage;
+
+                    var user_data = itemId + ';' + itemUserId + ';' + itemAppId;
+
+                    var tooltip_title = '双击打开' + itemAppText;
+
+                    // 计算行序号和列序号
+                    var row_idx = 0;
+                    var column_idx = 0;
+                    // 行序号
+                    if (itemXLeft > 0 && itemXLeft < tb_rows) {
+                        row_idx = itemXLeft;
+                    }
+                    else {
+                        row_idx = ((idx % tb_rows));
+                    }
+                    // 列序号
+                    if (itemYTop > 0 && itemYTop < tb_columns) {
+                        column_idx = itemYTop;
+                    }
+                    else {
+                        column_idx = parseInt(idx / tb_rows);
+                    }
+
+                    // 生成单元格ID
+                    var td_id = OnGetTdId(row_idx, column_idx);
+                    // 判断此单元格是否已经被占用
+                    if (!OnTdIsEmpty(td_id)) {
+                        // 此单元格已经被占用, 获取一个空格
+                        td_id = OnGetEmptyTdId(tb_rows, tb_columns);
+                        if (td_id == undefined || td_id.length < 1) {
+                            break;
+                        }
+                    }
+
+                    var td_innerHtml = '';
+
+                    td_innerHtml += '<img src="' + item_img + '">';
+                    td_innerHtml += '<br />';
+                    td_innerHtml += '<span style="color: #ffffff;">' + itemAppText + '</span>';
+
+                    // 更新单元格的值
+                    //alert(td_id);
+                    var tdCell = document.getElementById(td_id);
+                    if (tdCell != undefined) {
+                        tdCell.setAttribute('item_id', itemId);
+
+                        // tooltip
+                        tdCell.setAttribute('data-toggle', 'tooltip');
+                        tdCell.setAttribute('title', tooltip_title);
+
+                        tdCell.setAttribute('user-data', user_data);
+
+                        tdCell.innerHTML = td_innerHtml;
+                    }
+                }
+
+                $("#app td").hover(function () {
+                            // in
+                            // 进入的时候添加背景色
+                            var tb_text = $(this).text();
+                            if (tb_text != undefined && tb_text.length > 0) {
+                                $(this).css("background-color", "#5caae8");
+                                //$(this).css("behavior", "url(third_part/css3/ie-css3.htc)");
+                            }
+                        },
+                        function () {
+                            // out
+                            // 离开的时候清空背景色
+                            $(this).css("background-color", "");
+                            //$(this).css("behavior", "url(third_part/css3/ie-css3.htc)");
+                        })
+
+                // APP鼠标双击事件
+                $("#app td").on('dblclick', function () {
+                    var user_data = $(this).attr('user-data');
+                    var ids = user_data.split(';');
+                    if (ids.length >= 3) {
+                        var item_id = ids[0];
+                        var user_id = ids[1];
+                        var app_id = ids[2];
+
+                        onAppDbClick(item_id, user_id, app_id);
+                    }
+
+                });
+
+                // 添加鼠标拖拽事件
+                // mouse_drag.js
+                comDragging().enable();
+
+            }
+        })
+
+    }
+
+    function onAppDbClick(id, user_id, app_id) {
+        var reqUrl = getBaseUrl() + '/manage/app_policy_query';
+
+        var user_name = getPageUserName();
+
+        var postData = {
+            type: 'app',
+            id: id,
+            user_id: user_id,
+            user_name: user_name,
+            app_id: app_id,
+            time: new Date().getTime()
+        }
+
+        onAppPolicyQuery(reqUrl, user_name, postData);
+
+    }
+
+    function onDbClickCloudFolder() {
+
+        // 隐藏云空间按钮
+        var ec = document.getElementById('cloud_folder_id');
+        if (ec.style.display != "none") {
+            ec.style.display = "none";
+        }
+
+        // 显示云空间桌面
+        var e = document.getElementById('cloud_app_list');
+        if (e.style.display != "block") {
+            e.style.display = 'block';
+        }
+    }
+
+    function onClickCloudPre() {
+        var ec = document.getElementById('cloud_folder_id');
+        if (ec.style.display != "block") {
+            ec.style.display = "block";
+        }
+
+        var e = document.getElementById('cloud_app_list');
+        if (e.style.display != "none") {
+            e.style.display = "none";
+        }
+    }
+
+    function onDbclickCloudApp(type_name) {
+        var user_id = getPageUserId();
+        var user_name = getPageUserName();
+
+        onCloudAppRequest(type_name, user_id, user_name);
+    }
+
+    $(function(){
+        // 插件安装告警框关闭按钮
+        $(".close").click(function(){
+            // 刷新页面
+            window.location.reload();
+        })
+    })
+
+    $("#uset_modal_dialog").on('show.bs.modal', function(){
+        var modalId = 'uset_modal_dialog';
+        // 居中显示
+        $(this).css('display', 'block');
+        var modalHeight = $(window).height() / 2 - $('#' + modalId + ' .modal-dialog').height() / 2;
+        var modalWidth = $(window).width() / 2 - 800 / 2;
+
+        $(this).find('.modal-dialog').css({
+            'margin-top': modalHeight,
+            'margin-left': modalWidth
+        });
+    })
+
+    function onUsetClick() {
+        $("#uset_modal_dialog").modal();
+        onUsetSetItemClick('密码修改')
+    }
+
+    function onAboutClick() {
+        $("#about_dialog").modal();
+    }
+
+    function onLogoutClick() {
+        var warm = '注销之前请先保存所有应用';
+        if (!confirm(warm)) {
+            return false;
+        }
+
+        var user_name = getPageUserName();
+
+        // 注销会话
+        onDbclickCloudApp('cloud_logout');
+
+        var logout_timer = setTimeout(function(){
+
+            // 用户注销
+            onLogout(user_name);
+
+            // 重定向到登录
+            redirectToLogin();
+            clearTimeout(logout_timer);
+            logout_timer = null;
+
+        }, 1000);
+
+    }
+
+    function onUsetSetItemClick(e) {
+        var user_id = getPageUserId();
+        var user_name = getPageUserName();
+
+        var interHtml = "";
+        if (e == "密码修改") {
+            interHtml = '<object type="text/html" data="desk/pswd_settings.html';
+            interHtml += '?id=' + user_id;
+            interHtml += '&name=' + user_name;
+            interHtml += '"'
+            interHtml += ' width="100%" height="100%"></object>';
+        }
+        else if (e == '更换桌面') {
+            interHtml = '<object type="text/html" data="desk/theme_settings.html';
+            interHtml += '?id=' + user_id;
+            interHtml += '&name=' + user_name;
+            interHtml += '"'
+            interHtml += ' width="100%" height="100%"></object>';
+        }
+
+        // 设置标题头
+        $("#uset_page_head_id").html(e);
+        // 更新内容
+        if (interHtml.length > 0) {
+            $("#uset_page_id").html(interHtml);
+
+            // 更新最后选中TAB项
+            //if (e.length > 0) {
+            //    $("#select_tab_text_id").attr('value', e);
+            //}
+        }
+    }
+
+    function onCloundFolderClick() {
+        // 弹出云内容
+        $('#cloud_app_list').popover({
+            animation: true,
+            title: '我的云盘'
+        })
+    }
+
+</script>
+
+</html>

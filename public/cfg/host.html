@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主机设置</title>
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+</head>
+<body>
+
+
+<div class="tab-content">
+
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">主机设置</h7>
+        </div> <!-- end div panel-heading -->
+
+    </div>
+
+    <div class="panel-body">
+
+        <div class="setting-frame">
+
+
+            <div class="panel panel-default setting-panel">
+                <div class="panel-heading">
+                    <h5 class="panel-title" style="text-align: left">
+                        主机密码管理
+                    </h5>
+                </div>
+                <div class="panel-body">
+
+                    <div class="setting-row">
+                    <div class="setting-group">
+                        <div class="input-group" data-toggle="popover" data-placement="right" data-content="客户端用户运行主机的应用软件时，登录到该主机时所用到的Windows账号的密码，有效长度大于等于 8 到小于等于 50 个字符" >
+                            <span class="input-group-addon">Windows账号密码</span>
+                            <input type="password" class="form-control" id="account_pswd" style="width: 400px;"  >
+                            <span class="input-group-btn"  style="width: 40px;">
+                                <button class="btn btn-default" type="button" id="account_pswd_turn" >
+                                    <img src="../images/eye-open.png" id="account_pswd_turn_img_id" style="width: 22px;height: 18px;" />
+                                </button>
+                            </span>
+                        </div>
+                    </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="panel panel-default setting-panel">
+                <div class="panel-heading">
+                    <h5 class="panel-title" style="text-align: left">
+                        主机CPU资源分配
+                    </h5>
+                </div>
+                <div class="panel-body">
+
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="平均一个用户分配的CPU核数，0 代表不限制">
+                                <span class="input-group-addon">人均CPU核数</span>
+                                <select class="form-control" id="user_cores" style="width: 400px;" >
+                                    <option value="0">0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="4">4</option>
+                                    <option value="8">8</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="panel panel-default setting-panel">
+                <div class="panel-heading">
+                    <h5 class="panel-title" style="text-align: left">
+                        主机访问控制
+                    </h5>
+                </div>
+                <div class="panel-body">
+
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="用户账户在服务器上是否具有管理员权限">
+                                <span class="input-group-addon">管理员权限</span>
+                                <select class="form-control" id="account_admin" style="width: 400px;">
+                                    <option value="0">否</option>
+                                    <option value="1">是</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="用户账户是否能以远程桌面方式登录到服务器">
+                                <span class="input-group-addon">禁止桌面模式</span>
+                                <select class="form-control" id="desktop_deny" style="width: 400px;">
+                                    <option value="0">否</option>
+                                    <option value="1">是</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="远程桌面协议服务端口号，默认值 3389 ，有效值大于等于 1 到小于等于 65535 ，请在必需时才修改此项">
+                                <span class="input-group-addon">RDP端口 </span> <!-- <span>（有效值大于等于1与小于等于65535）</span>  -->
+                                <input type="number" class="form-control" id="rdp_port" min="1" max="65535" style="width: 400px;">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+             </div>
+
+
+            <div class="panel panel-default setting-panel">
+                <div class="panel-heading">
+                    <h5 class="panel-title" style="text-align: left">
+                        主机统计
+                    </h5>
+                </div>
+                <div class="panel-body">
+                    <div class="setting-row">
+                        <div class="setting-group">
+                            <div class="input-group" data-toggle="popover" data-placement="right" data-content="统计数据采集频率，有效值大于等于 1 到小于等于 60">
+                                <span class="input-group-addon">统计数据采集频率<span>（单位：分钟）</span></span>
+                                <input type="number" class="form-control" id="poll_period" min="1" max="60" step="1" style="width: 400px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div> <!-- end div setting-frame -->
+
+    </div> <!-- end div pannel-body -->
+
+</div> <!-- end div tab_page -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        onPswdTwoShow(true);
+
+        getCfgInitData();
+    }
+
+    $(function () { $("[data-toggle='popover']").popover('show'); });
+
+    function onPswdTwoShow(is_show) {
+        if (is_show) {
+            $("#account_pswd_two").show();
+        }
+        else {
+            $("#account_pswd_two").hide();
+        }
+    }
+
+    // 应用主机登录密码
+    $("#account_pswd").on('blur', function(){
+        if ($(this).val()) {
+            var account_pswd = $(this).val();
+
+            if (account_pswd == undefined || account_pswd == null || account_pswd.length < 8) {
+                alert('请输入大于等于 8 到小于等于 50 个字符范围长度内的字母，数字，下划线以及特殊字符组合值，须符合windows密码规则');
+                return false;
+            }
+
+            if (account_pswd.length > 50) {
+                alert('请输入大于等于 8 到小于等于 50 个字符范围长度内的字母，数字，下划线以及特殊字符组合值，须符合windows密码规则');
+                return false;
+            }
+
+            // 检测是否符合Windows密码强度规则
+            if (!onCheckWindowPswd(account_pswd)) {
+                var strMsg = "密码复杂度不符合Windows服务器版本对强度的要求，规则如下：";
+                strMsg += "\n规则一：字符数不少于8位";
+                strMsg += "\n规则二：以大写字母开头";
+                strMsg += "\n规则三：密码可包含大，小写字符，数字以及特殊字符";
+                strMsg += "\n规则四：密码可包括的特殊字符有 @ # $ % & 其中至少需要包含一个特殊字符且不能位于开头和结尾位置";
+                alert(strMsg);
+                return false;
+            }
+
+            var ele = document.getElementById('account_pswd');
+            var owner = ele.getAttribute('owner');
+
+            if (owner == account_pswd) {
+                return;
+            }
+
+            var strWarm = '确定要修改主机密码吗';
+            if (!confirm(strWarm)) {
+                ele.value = owner;
+            }
+            else {
+                var dictionary = [
+                    {
+                        type: 'string',
+                        name: 'account_pwd',
+                        value: account_pswd
+                    }
+                ]
+
+                onPostCfgGlobalModify(dictionary);
+            }
+        }
+    });
+
+    $("#account_pswd_turn").on('click', function(){
+        var account_pswd_id = 'account_pswd';
+        var turn_btn_id = 'account_pswd_turn_img_id';
+
+        var img_open = '../images/eye-open.png';
+        var img_close = '../images/eye-close.png';
+
+        var account_pswd_type = $("#" + account_pswd_id).attr('type');
+        if (account_pswd_type == 'password') {
+            $("#" + account_pswd_id).attr('type', 'text');
+            $("#" + turn_btn_id).attr('src', img_close);
+        }
+        else {
+            $("#" + account_pswd_id).attr('type', 'password');
+            $("#" + turn_btn_id).attr('src', img_open);
+        }
+    });
+
+    // 用户CPU核数变化
+    $("#user_cores").on('change', function(){
+        if ($(this).val()) {
+            var userCores = $(this).find('option:selected').text();
+
+            var dictionary = [
+                {
+                    type: 'number',
+                    name: 'user_cores',
+                    value: userCores
+                }
+            ]
+
+            onPostCfgWsModify(dictionary);
+        }
+    });
+
+    // 管理员权限
+    $("#account_admin").on('change', function(){
+        if ($(this).val()) {
+            var status_text = $(this).find('option:selected').text();
+            var status = (status_text == '是' ? 1 : 0);
+
+            var dictionary = [
+                {
+                    type: 'number',
+                    name: 'account_admin',
+                    value: status
+                }
+            ]
+
+            onPostCfgHostModify(dictionary);
+        }
+    });
+
+    // 禁止桌面模式
+    $("#desktop_deny").on('change', function(){
+        if ($(this).val()) {
+            var status_text = $(this).find('option:selected').text();
+            var status = (status_text == '是' ? 1 : 0);
+
+            var dictionary = [
+                {
+                    type: 'number',
+                    name: 'desktop_deny',
+                    value: status
+                }
+            ]
+
+            onPostCfgHostModify(dictionary);
+        }
+    });
+
+    // RDP端口
+    $("#rdp_port").on('blur', function(){
+        if ($(this).val()) {
+            var rdp_port_text = $(this).val();
+            try {
+                var ele = document.getElementById('rdp_port');
+                var owner = ele.getAttribute('owner');
+
+                if (owner == rdp_port_text) {
+                    return false;
+                }
+
+                var rdp_port = parseInt(rdp_port_text);
+                if (rdp_port <= 1 || rdp_port >= 65535) {
+                    alert('请输入大于等于 1 到小于等于 65535 之间的整数');
+                    ele.value = owner;
+
+                    return false;
+                }
+
+                var dictionary = [
+                    {
+                        type: 'number',
+                        name: 'rdp_port',
+                        value: rdp_port
+                    }
+                ]
+
+                onPostCfgHostModify(dictionary);
+            }
+            catch (err) {
+                alert('输入值无效');
+                return false;
+            }
+        }
+    })
+
+    $("#poll_period").on('blur', function(){
+        if ($(this).val()) {
+            var poll_period_text = $(this).val();
+            try {
+                var ele = document.getElementById('poll_period');
+                var owner = ele.getAttribute('owner');
+
+                var poll_period = parseInt(poll_period_text);
+
+                if (owner == poll_period_text) {
+                    return false;
+                }
+
+                if (poll_period < 1 || poll_period > 60) {
+                    alert('请输入大于等于 1 到小于等于 60 之间的整数');
+                    ele.value = owner;
+
+                    return false;
+                }
+
+                poll_period = poll_period * 60; // 转化成秒
+
+                var dictionary = [
+                    {
+                        type: 'number',
+                        name: 'poll_period',
+                        value: poll_period
+                    }
+                ]
+
+                onPostCfgHostModify(dictionary);
+            }
+            catch (err) {
+                alert('输入值无效');
+                return false;
+            }
+        }
+    })
+
+    function getCfgInitData() {
+        getCfgGlobalInitData();
+        getCfgWsInitData();
+        getCfgHostInitData();
+    }
+
+    function getCfgGlobalInitData() {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/global';
+
+        var postData = {
+            fields: ['account_pwd'],
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            if (status != 1) {
+                alert(res['msg']);
+            }
+            else {
+                var data = res['data'];
+
+                var account_pwd = data['account_pwd'];
+
+                document.getElementById('account_pswd').setAttribute('value', account_pwd);
+                document.getElementById('account_pswd').setAttribute('owner', account_pwd);
+            }
+        });
+    }
+
+    function getCfgWsInitData() {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/ws';
+
+        var postData = {
+            fields: ['user_cores'],
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            if (status != 1) {
+                alert(res['msg']);
+            }
+            else {
+                var data = res['data'];
+
+                var user_cores = data['user_cores'];
+
+                onSetUserCoresUI(user_cores);
+            }
+        });
+    }
+
+    function getCfgHostInitData() {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/host';
+
+        var postData = {
+            fields: ['account_admin','desktop_deny','rdp_port','poll_period'],
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            if (status != 1) {
+                alert(res['msg']);
+            }
+            else {
+                var data = res['data'];
+
+                var account_admin = data['account_admin'];
+                var desktop_deny = data['desktop_deny'];
+                var rdp_port = data['rdp_port'];
+                var poll_period = data['poll_period'];
+
+                onSetSelectStatus('account_admin', account_admin);
+                onSetSelectStatus('desktop_deny', desktop_deny);
+                document.getElementById('rdp_port').setAttribute('value', rdp_port);
+                document.getElementById('rdp_port').setAttribute('owner', rdp_port);
+
+                poll_period = poll_period / 60; // 转化为分钟
+                document.getElementById('poll_period').setAttribute('value', poll_period);
+                document.getElementById('poll_period').setAttribute('owner', poll_period);
+            }
+        });
+    }
+
+    function onSetUserCoresUI(user_cores) {
+        $("#user_cores").val(user_cores);
+    }
+
+    function onSetSelectStatus(id, status) {
+        $("#" + id).val(status);
+    }
+
+    function onPostCfgGlobalModify(dictionary) {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/global_modify';
+
+        var postData = {
+            list: dictionary,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            alert(msg);
+            // 重新更新
+            getCfgGlobalInitData();
+        });
+    }
+
+    function onPostCfgWsModify(dictionary) {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/ws_modify';
+
+        var postData = {
+            list: dictionary,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            //var status = res['status'];
+
+            // 重新更新
+            getCfgWsInitData();
+        });
+    }
+
+    function onPostCfgHostModify(dictionary) {
+        var user_name = getAdministratorName();
+        var reqUrl = getBaseUrl() + '/cfg/host_modify';
+
+        var postData = {
+            list: dictionary,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+            alert(msg);
+
+            // 重新更新
+            getCfgHostInitData();
+        });
+    }
+
+</script>
+
+</html>

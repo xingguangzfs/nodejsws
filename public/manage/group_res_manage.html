@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>资源内容管理</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/group_res_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+
+</head>
+<body>
+
+<!-- 资源选择对话框 -->
+<div class="modal fade" id="res_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="hidden_data_area">
+        <!-- 隐藏用户数据 -->
+    </div> <!-- end div hidden_data_area -->
+
+    <div class="modal-dialog" id="res_dialog_id" style="width: 80%; max-height: 80%">
+        <div class="modal-content" >
+            <div class="modal-header">
+                <div class="btn" style="position: absolute; left: 220px; top: 10px;width: 64px;height: 32px;">
+                    <label><input type="checkbox" id="select_all_id" checked="checked" onclick="Javascripts:onChangeStatus();" >全选</label>
+                </div>
+
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="resModalLabel">成员列表</h4>
+            </div> <!-- end div modal-header -->
+
+            <div class="modal-body" style="height: 800px;">
+
+                <div>
+
+                    <div class="wrap-frame" id="res_other_data_id">
+
+                    </div>
+
+                </div>
+
+            </div> <!-- end div modal-body -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default"  data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="add_res_btn" onclick="Javascript:onResDialogSubmit();">提交</button>
+            </div> <!-- end div modal-footer -->
+
+        </div> <!-- end div modal-content -->
+
+    </div> <!-- end div modal-dialog -->
+
+</div> <!-- end div modal fade -->
+
+<div class="hide_data_area">
+    <!-- group_res_type: 0为用户资源，1为应用资源，2为主机类型 -->
+    <input type="hidden" id="private_group_type_id" value="0">
+    <input type="hidden" id="private_res_type_id" value="0">
+</div> <!-- end div hide_data_area -->
+
+<div class="head_area">
+
+</div> <!-- end div head_area -->
+
+<div class="content_area">
+
+    <div class="left_side">
+
+    </div> <!-- end div left_side -->
+
+    <div class="nav_side">
+        <div class="list-group" id="res_nav_data_id">
+            <!--<a href="Javascript:void(0);" class="list-group-item active">
+                <h4 class="list-group-item-heading">
+                    资源类型
+                </h4>
+            </a>
+
+            <a href="#" class="list-group-item">
+                <p class="list-group-item-text">
+                    用户组一
+                </p>
+            </a>-->
+
+        </div>
+    </div>
+
+    <div class="nav_content_side">
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h7 class="panel-title" id="res_data_head_id">组成员</h7>
+            </div> <!-- end div panel-heading -->
+
+            <div class="auto-wrap-frame" id="res_data_id">
+
+                <!--<div class="wrap-item">
+                    <div class="wrap-item-img">
+                        <img src="../images/user3.png">
+                    </div>
+                    <div class="wrap-item-text">
+                        div2
+                    </div>
+                    <div class="wrap-item-input">
+                        <input type="checkbox" name="inside" value="" />
+                    </div>
+                </div>
+
+                <div class="wrap-item">
+                    <div class="wrap-item-img">
+                        <img src="../images/user3.png">
+                    </div>
+                    <div class="wrap-item-text">
+                        欧阳丽梅
+                    </div>
+                    <div class="wrap-item-input">
+                        <input type="checkbox" name="inside" value="" />
+                    </div>
+                </div> -->
+
+            </div> <!-- end div auto-wrap-frame -->
+
+        </div>  <!-- end div panel -->
+
+    </div> <!-- end div nav_content_side -->
+
+</div> <!-- end div content_area -->
+
+<div class="foot_area">
+
+</div> <!-- end div foot_area -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        var group_type_id =  getQueryString('group_type_id');
+        var res_type_id = getQueryString('res_type_id');
+
+        // 保存参数
+        if (group_type_id != undefined && group_type_id > 0) {
+            setGroupTypeId(group_type_id);
+        }
+        if (res_type_id != undefined && res_type_id > 0) {
+            setResTypeId(res_type_id);
+        }
+
+        // 获取导航数据
+        onGetGroupList('res_nav_data_id', group_type_id);
+
+        // 获取详细数据
+        getGroupDetailList('res_data_id',group_type_id, res_type_id, true, 'button');
+    }
+
+    function getGroupTypeId() {
+        return getItemAttrValue('private_group_type_id', 'value');
+    }
+
+    function getResTypeId() {
+        return getItemAttrValue('private_res_type_id', 'value');
+    }
+
+    function setGroupTypeId(group_type_id) {
+        setItemAttrValue('private_group_type_id', 'value', group_type_id);
+    }
+
+    function setResTypeId(group_id) {
+        setItemAttrValue('private_res_type_id', 'value', group_id);
+    }
+
+    // 模态对话框
+    // 用户信息模态对话框初始化
+    $("#res_modal_dialog").on('show.bs.modal', function () {
+    })
+
+    function onResAddClick() {
+        var group_type_id = getGroupTypeId();
+        var group_id = 0;
+
+        getGroupDetailList('res_other_data_id', group_type_id, group_id, false, 'checkbox');
+
+        // 显示模态对话框
+        $("#res_modal_dialog").modal();
+    }
+
+    function onResDialogSubmit() {
+        // 模态对话框提交事件
+        var group_type_id = getGroupTypeId();
+        var group_id = getResTypeId();
+
+        var list = getAllResSelectItem();
+        if (list.length < 1) {
+            alert('数据不能为空，请选择要添加的资源！');
+            return false;
+        }
+
+        var ids = [];
+        var names = [];
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            ids[idx] = itemData.id;
+            names[idx] = itemData.name;
+        }
+
+        onResGroupDataModify(ids, names, group_type_id, group_id);
+
+        // 隐藏模态对话框
+        $("#res_modal_dialog").modal('hide');
+    }
+
+    function onChangeStatus() {
+        var is_checked = $("#select_all_id").prop('checked');
+
+        $("input[name='inside']:checkbox").each(function() {
+            $(this).prop("checked", is_checked);
+        });
+
+    }
+
+    function onGroupItemClick(element) {
+        var group_type_id = getGroupTypeId();
+        var group_id = element.getAttribute('id');
+
+        setResTypeId(group_id);
+
+        getGroupDetailList('res_data_id', group_type_id, group_id, true, 'button');
+    }
+
+    function onGetGroupList(ctrl_id, group_type_id) {
+        var reqUrl = getBaseUrl();
+        var groupTypeText = '';
+        if (group_type_id == 0) {
+            reqUrl += '/manage/user_group_query';
+            groupTypeText = '用户组';
+        }
+        else if (group_type_id == 1) {
+            reqUrl += '/manage/app_group_query';
+            groupTypeText = '应用组';
+        }
+        else if (group_type_id == 2) {
+            reqUrl += '/manage/host_group_query';
+            groupTypeText = '主机组';
+        }
+
+        var postData = {
+            time: new Date().getTime()
+        }
+
+        if (reqUrl.length > 0) {
+            onQueryNavGroups(ctrl_id, reqUrl, postData, groupTypeText)
+        }
+    }
+
+    function getGroupDetailList(ctrl_id,group_type_id, group_id, enable_add, input_type) {
+        var reqUrl = getBaseUrl();
+        var groupTypeText = '';
+        if (group_type_id == 0) {
+            // 用户组
+            reqUrl += '/manage/user_simple_query';
+            groupTypeText = '用户组';
+        }
+        else if (group_type_id == 1) {
+            // 应用组
+            reqUrl += '/manage/app_simple_query';
+            groupTypeText = '应用组';
+        }
+        else if (group_type_id == 2) {
+            // 主机组
+            reqUrl += '/manage/host_query';
+            groupTypeText = '主机组';
+        }
+
+        $("#resModalLabel").html('可选' + groupTypeText + '成员列表');
+
+        groupTypeText += '成员列表';
+        $("#res_data_head_id").html(groupTypeText);
+
+        var postData = {
+            group_id: group_id,
+            status: 1,
+            page_index: 1,
+            page_size: 1000,
+            page_count:1,
+            time: new Date().getTime()
+        }
+
+        onQueryGroupDetailDatas(ctrl_id, group_type_id, reqUrl, postData, enable_add, input_type);
+    }
+
+    function getAllResSelectItem() {
+        var list = [];
+        var idx = 0;
+        $("#res_dialog_id .wrap-item").each(function(i){
+            var item_check = $(this).find('.wrap-item-input input[name="inside"]').prop('checked');
+            if (item_check) {
+                var item_id = $(this).attr('id');
+                var item_user_id = $(this).attr('user-id');
+                var item_user_name = $(this).attr('user-name');
+                var item_user_text = $(this).attr('user-text');
+                var item_user_image = $(this).attr('user-image');
+                var item_user_remark = $(this).attr('user-remark');
+                //var item_img = $(this).find('img').attr('src');
+                //var item_text = $(this).find('.wrap-item-text').text();
+
+                var itemData = {
+                    id: item_user_id,
+                    name: item_user_name,
+                    text: item_user_text,
+                    image: item_user_image,
+                    remark: item_user_remark
+                }
+                list[idx++] = itemData;
+            }
+        });
+
+        return list;
+    }
+
+    function onRemoveItemClick(element) {
+        var wrapInputNode = element.parentNode;
+        var wrapItemNode = wrapInputNode.parentNode;
+
+        var user_id = wrapItemNode.getAttribute('user-id');
+        var user_name = wrapItemNode.getAttribute('user-name');
+        var user_text = wrapItemNode.getAttribute('user-text');
+
+        if (user_id == undefined || user_id < 1) {
+            return false;
+        }
+
+        var msg = '确定要删除 "' + user_text + '" 项吗？';
+
+        if (confirm(msg)) {
+            var group_type_id = getGroupTypeId();
+            //var group_id = getResTypeId();
+            var group_id = 0;
+
+            var ids = [
+                user_id
+            ]
+
+            var names = [
+                    user_name
+            ]
+
+            onResGroupDataModify(ids, names, group_type_id, group_id);
+
+            // 删除项（会重新更新页面，因此不需要人工删除）
+            //wrapItemNode.parentNode.removeChild(wrapItemNode);
+        }
+    }
+
+    function onResGroupDataModify(ids, names, group_type_id, group_id) {
+
+        var reqUrl = getBaseUrl();
+        if (group_type_id == 0) {
+            // 用户
+            reqUrl += '/manage/user_modify_group';
+        }
+        else if (group_type_id == 1) {
+            // 应用
+            reqUrl += '/manage/app_modify_group';
+        }
+        else if (group_type_id == 2) {
+            // 主机
+            reqUrl += '/manage/host_modify_group';
+        }
+
+        var postData = {
+            ids: ids,
+            names: names,
+            group_id: group_id,
+            time: new Date().getTime()
+        }
+
+        var user_name = getAdministratorName();
+        onNoCloseSubmitRequest(reqUrl, user_name, postData);
+    }
+
+</script>
+
+</html>

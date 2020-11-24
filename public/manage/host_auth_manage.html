@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>授权主机管理</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+
+</head>
+<body>
+
+<div class="hidden-area">
+    <!-- 隐藏分页信息 -->
+    <input type="hidden" id="private_page_start_index" value="1">
+    <input type="hidden" id="private_page_index" value="1">
+    <input type="hidden" id="private_page_size" value="20">
+    <input type="hidden" id="private_page_count" value="1">
+    <input type="hidden" id="private_page_btns" value="5">
+</div>
+
+<div class="tab_page">
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h7 class="panel-title">授权主机管理</h7>
+        </div> <!-- end div panel-heading -->
+    </div>
+
+    <div class="panel-body">
+
+        <div class="option_area">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" onclick="Javascript:onAddAuthBtnClick();"> + 添加授权</button>
+                </span>
+            </div>
+        </div> <!-- end div option_area -->
+
+        <div class="data_area">
+            <table class="table table-bordered" id="tb_data_id">
+                <caption>授权列表</caption>
+                <thead id="tb_data_head_id">
+                <tr>
+                    <th>序号</th>
+                    <th>用户名称</th>
+                    <th>授权主机数（台）</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="tb_data_body_id" class="table_decorate">
+
+                </tbody>
+            </table>
+        </div> <!-- end div data_area -->
+
+        <div class="page_area">
+            <ul class="pagination" id="page_id">
+                <!--<li><a href="#">&laquo;</a> </li>
+                <li><a href="#">1</a> </li>
+                <li><a href="#">2</a> </li>
+                <li><a href="#">&raquo;</a> </li>-->
+            </ul>
+        </div>
+
+        <div class="status_area">
+            <label id="status_max_records_id"></label>
+        </div> <!-- end div status_area -->
+
+    </div> <!-- end div panel-body -->
+
+</div>
+
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        onGetHostAuthList();
+    }
+
+    function onAddAuthBtnClick() {
+        var url = 'host_auth_modify.html';
+        window.open(url, '_blank');
+    }
+
+    function onGetHostAuthList() {
+        var page_index = onGetPrivatePageIndex();
+        var page_size = onGetPrivatePageSize();
+        var page_count = onGetPrivatePageCount();
+
+        var reqUrl = getBaseUrl() + "/manage/host_auth_query";
+
+        var postData = {
+            page_index: page_index,
+            page_size: page_size,
+            page_count: page_count,
+            time: new Date().getTime(),
+        }
+        onQueryHostAuthDatas('tb_data_body_id', 'page_id', reqUrl, postData);
+    }
+
+    function onAuthOptionClick(element, op_idx) {
+        var tdNode = element.parentNode;
+        var trNode = tdNode.parentNode;
+
+        var user_id = trNode.getAttribute('data-id');
+        if (op_idx == 1) {
+            // 修改
+            var reqUrl =  getBaseUrl() + '/manage/host_auth_modify.html?user_id=' + user_id;
+            window.open(reqUrl);
+        }
+        else if (op_idx == 2) {
+            // 删除
+            var user_name = trNode.getAttribute('data-name');
+            var msg = '确定要删除 \"' + user_name + '\" 用户主机权限吗？';
+            var status = confirm(msg);
+            if (status) {
+                var reqUrl = getBaseUrl() + '/manage/host_auth_delete';
+
+                var postData = {
+                    user_id: user_id,
+                    time: new Date().getTime()
+                }
+
+                var user_name = getAdministratorName();
+                onSubmitRequest(reqUrl, user_name, postData);
+
+                window.location.reload();
+            }
+        }
+    }
+
+</script>
+
+</html>

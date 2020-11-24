@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动发现</title>
+
+    <link href="../stylesheets/style.css" type="text/css" rel="stylesheet" />
+
+    <link href="../selfcomponent/selecter/selecter.css" type="text/css" rel="stylesheet" />
+
+    <!-- 引入 Bootstrap -->
+    <!-- 新 Bootstrap 核心 CSS 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css -->
+    <link href="../third_part/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+    <!--[if lt IE 10]>
+    <script src="../third_part/html5shiv-3.7.2/dist/html5shiv.min.js"></script>
+    <script src="../third_part/Respond-1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <!-- https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js -->
+    <script src="../third_part/jquery/jquery.min.js"></script>
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js -->
+    <script src="../third_part/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+
+    <script src="../third_part/JSON-js-master/json2.js"></script>
+    <script src="../third_part/store.js-2.0.10/dist/store.legacy.min.js"></script>
+
+    <script src="../selfcomponent/selecter/selecter.js"></script>
+    <script src="../javascripts/com_page_op.js"></script>
+    <script src="../javascripts/manage_op.js"></script>
+    <script src="../javascripts/local_storage.js"></script>
+    <script src="../javascripts/http.js"></script>
+
+</head>
+<body>
+
+<div class="hidden-area">
+    <input type="hidden" id="private_id" value="0" />
+</div>
+
+<div class="modal fade" id="host_modal_dialog" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog" id="hostr_dialog_id" style="width: 400px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">主机设置</h4>
+            </div> <!-- end div modal-header -->
+            <div class="modal-body">
+                <form name="add_form" id="form_id" method="post" action="">
+
+                    <div class="input-group">
+                        <span class="input-group-addon" id="infoid" style="color: red;height: 30px;"> </span>
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">IP地址：</span>
+                        <input type="text" class="form-control" id="hostipaddr" name="hostipaddr" readonly="readonly" placeholder="请输入主机IP地址" style="width: 240px;">
+                        <span class="input-group-addon" style="color: red;">*</span>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">主机名称：</span>
+                        <input type="text" class="form-control" id="hostname" name="hostname" placeholder="请输入主机名称">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">启用状态：</span>
+                        <select class="form-control" id="host_status" style="width: 240px;">
+                            <option value="启用">启用</option>
+                            <option value="禁用">禁用</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">所属组：</span>
+                        <select class="form-control" id="host_group_id" style="width: 240px;">
+                            <option>无</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="width: 95px;">备注：</span>
+                        <textarea class="form-control" rows="5" id="remark" name="remark" style="width: 240px;"></textarea>
+                    </div>
+
+                </form>
+            </div> <!-- end div modal-body -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="add_user_btn" onclick="Javascript:onHostAttrModifySubmit();">确定</button>
+            </div> <!-- end div modal-footer -->
+        </div> <!-- end div modal-content -->
+    </div>
+</div>
+
+<div class="head_area">
+
+</div> <!-- end div head_area -->
+
+<div class="content_area" >
+
+    <div class="left_side">
+
+    </div> <!-- end div left_side -->
+
+    <div class="panel panel-info" style="width: 80%;">
+        <div class="panel-heading" >
+            <div class="option_area">
+                <h4 class="modal-title" id="auto_add_host">自动发现</h4>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="checkbox" checked="checked" onclick="Javascript:onSelectAllClick(this);" style="margin-top: 6px;"><span style="margin-top: 3px;">&nbsp;全选</span>
+            </div>
+        </div> <!-- end div panel-heading -->
+
+        <div class="panel-body" >
+
+
+            <div class="data-list" id="res_data_id" style="min-height: 80px;border: none;">
+
+                <!--<div class="wrap-item" id="app_1">
+                    <div class="wrap-item-mini-img">
+                        <img src="../images/user3.png">
+                    </div>
+                    <div class="wrap-item-mini-text">192.168.0.3</div>
+                    <div class="wrap-item-mini-text">server3</div>
+                    <div class="wrap-item-mini-input">
+                        <input type="checkbox" checked="checked" name="inside" value="" />
+                    </div>
+                </div>
+
+                <div class="wrap-item" id="app_2">
+                    <div class="wrap-item-mini-img">
+                        <img src="../images/user3.png">
+                    </div>
+                    <div class="wrap-item-mini-text">192.168.0.4</div>
+                    <div class="wrap-item-mini-text">server2</div>
+                    <div class="wrap-item-mini-input">
+                        <input type="checkbox" checked="checked" name="inside" value="" />
+                    </div>
+                </div>-->
+
+            </div>
+
+            <div class="submit-area">
+                <button type="button" class="btn btn-primary" id="modify_btn" onclick="Javascript:onModifySubmit();">提交</button>
+                <button type="button" class="btn btn-default" id="cancel_btn" onclick="Javascript:onCancelSubmit();">关闭</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="foot_area">
+
+</div> <!-- end div foot_area -->
+
+</body>
+
+<script>
+
+    window.onload = function() {
+        onGetDiscoverHostList();
+    }
+
+    function onSelectAllClick(elem) {
+
+        var select_all = elem.checked;
+
+        // 遍历checkbox列表
+        var elems = document.getElementsByName('inside');
+        for(var idx = 0; idx < elems.length; idx++) {
+            var item = elems[idx];
+
+            if (select_all != item.checked) {
+                item.checked = select_all;
+            }
+        }
+    }
+
+    function onCancelSubmit() {
+        window.close();
+    }
+
+    function onModifySubmit() {
+        var hosts = onGetSelectedDiscoverHostDatas();
+
+        if (hosts == null || hosts.length < 1) {
+            alert('请选择要提交的主机');
+            return false;
+        }
+
+        var reqUrl = getBaseUrl() + '/manage/host_batch_modify';
+        var user_name = getAdministratorName();
+        var postData = {
+            hosts: hosts,
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                //alert(msg);
+
+                // 刷新父页面
+                //window.location.reload();
+                // 刷新父窗口
+                if (window.opener && !window.opener.closed) {
+                    window.opener.location.reload();
+                }
+                window.close();
+            }
+        });
+    }
+
+    function onGetDiscoverHostList() {
+        var reqUrl = getBaseUrl() + '/manage/host_discover';
+        var user_name = getAdministratorName();
+        var postData = {
+            time: new Date().getTime()
+        }
+
+        httpPostRequest(reqUrl, user_name, postData, function(res){
+            var status = res['status'];
+            var msg = res['msg'];
+
+            if (status != 1) {
+                alert(msg);
+                return false;
+            }
+            else {
+                var count = res['count'];
+                var list = res['list'];
+
+                onUpdateDiscoverDatas(list);
+            }
+        });
+    }
+
+    function onUpdateDiscoverDatas(list) {
+        var innerHtml = '';
+
+        for(var idx = 0; idx < list.length; idx++) {
+            var itemData = list[idx];
+
+            innerHtml += onGetHostItemHtml(itemData);
+        }
+
+        $("#res_data_id").html(innerHtml);
+    }
+
+    function onGetHostItemHtml(itemData) {
+        var innerHtml = '';
+
+        var item_id = itemData.id;
+        var item_ip = itemData.ip;
+        var item_name = itemData.name;
+
+        var item_host_img = getDefaultHostImage(1);
+
+        innerHtml += '<div class="wrap-item" ';
+        innerHtml += 'id="' + item_id + '" ';
+        innerHtml += 'name="' + item_name + '" ';
+        innerHtml += 'ip="' + item_ip + '" ';
+        innerHtml += 'status="1" ';
+        innerHtml += 'group_id="0" ';
+        innerHtml += 'group_name="" ';
+        innerHtml += 'remark="" ';
+        innerHtml += 'onMouseOver="Javascript:onWrapItemMouseOver(this);" ';
+        innerHtml += 'ondblclick="Javascript:onWrapItemDbClick(this);" ';
+        innerHtml += '>';
+
+        innerHtml += '<div class="wrap-item-mini-img">';
+        innerHtml += '<img src="' + item_host_img + '">';
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-mini-text" name="item_ip">';
+        innerHtml += item_ip;
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-mini-text" name="item_name">';
+        innerHtml += item_name;
+        innerHtml += '</div>';
+
+        innerHtml += '<div class="wrap-item-mini-input">';
+        innerHtml += '<input type="checkbox" checked="checked" name="inside" value="" />';
+        innerHtml += '</div>';
+
+        innerHtml += '</div>';
+
+        return innerHtml;
+    }
+
+    function onGetSelectedDiscoverHostDatas() {
+        var datas = [];
+        // 遍历checkbox列表
+        var elems = document.getElementsByName('inside');
+        for(var idx = 0; idx < elems.length; idx++) {
+            var item = elems[idx];
+
+            if (!item.checked) {
+                continue;
+            }
+
+            var parent_1_elem = item.parentNode;
+            var parent_2_elem = parent_1_elem.parentNode;
+
+            var item_id = parent_2_elem.getAttribute('id');
+            var item_ip = parent_2_elem.getAttribute('ip');
+            var item_name = parent_2_elem.getAttribute('name');
+            var item_status = parent_2_elem.getAttribute('status');
+            var item_group_id = parent_2_elem.getAttribute('group_id');
+            var item_remark = parent_2_elem.getAttribute('remark');
+
+            var itemData = {
+                id: item_id,
+                name: item_name,
+                ip: item_ip,
+                status: item_status,
+                group_id: item_group_id,
+                remark: item_remark
+            }
+
+            datas.push(itemData);
+
+        }
+
+        return datas;
+    }
+
+    function onWrapItemMouseOver(elem) {
+        var item_id = elem.getAttribute('id');
+        var item_name = elem.getAttribute('name');
+        var item_ip = elem.getAttribute('ip');
+        var item_status = elem.getAttribute('status');
+        var item_group_id = elem.getAttribute('group_id');
+        var item_group_name = elem.getAttribute('group_name');
+        var item_remark = elem.getAttribute('remark');
+
+        var item_status_text = onGetStatusText(item_status);
+
+        var innerTitleHtml = '';
+
+        innerTitleHtml += '<div><h4>双击图标修改属性</h4></div>'
+
+        var innerHtml = '';
+
+        innerHtml += '<table class="table table-condensed" style="margin-top: -10px;margin-bottom: -10px;">';
+
+        innerHtml += '<tbody>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>主机名：</td>';
+        innerHtml += '<td>' + item_name + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>IP地址：</td>';
+        innerHtml += '<td>' + item_ip + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>启用状态：</td>';
+        innerHtml += '<td>' + item_status_text + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>所属组：</td>';
+        innerHtml += '<td>' + item_group_name + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '<tr>';
+        innerHtml += '<td>备注：</td>';
+        innerHtml += '<td>' + item_remark + '</td>';
+        innerHtml += '</tr>';
+
+        innerHtml += '</tbody>';
+
+        innerHtml += '</table>';
+
+        // $("[rel=drevil]").popover
+        $('[name="' + item_name + '"]').popover({
+            trigger:'manual',
+            placement : 'right',
+            title :  innerTitleHtml,
+            html: 'true', //needed to show html of course
+            content : innerHtml,
+            animation: false
+        }).on("mouseover", function () {
+            $(this).popover("show");
+
+        }).on("mouseout", function () {
+            $(this).popover("destroy");
+        });
+    }
+
+    $("#host_modal_dialog").on('show.bs.modal', function () {
+    })
+
+    function onWrapItemDbClick(elem) {
+
+        // 显示模态对话框
+        $("#host_modal_dialog").modal();
+
+        var item_id = elem.getAttribute('id');
+        var item_name = elem.getAttribute('name');
+        var item_ip = elem.getAttribute('ip');
+        var item_status = elem.getAttribute('status');
+        var item_group_id = elem.getAttribute('group_id');
+        var item_group_name = elem.getAttribute('group_name');
+        var item_remark = elem.getAttribute('remark');
+
+        $("#private_id").attr('value', item_id);
+
+        $("#hostname").val(item_name);
+        $("#hostipaddr").val(item_ip);
+        $("#remark").val(item_remark);
+
+        $("#infoid").html('');
+
+        // 初始化主机状态
+        onChangeSelectItem('host_status', onGetStatusText(item_status));
+
+        // 初始化用户组信息
+        onGetHostGroups('host_group_id', item_group_id);
+    }
+
+    function onHostAttrModifySubmit() {
+        var item_id = $("#private_id").val();
+
+        // 获取数据
+        var host_ip = $("#hostipaddr").val();
+        var host_name = $("#hostname").val();
+
+        var item_status = 1;
+        var status_text = $("#host_status option:selected").text();
+        item_status = onGetStatusValue(status_text);
+
+        // 所属组
+        var group_id = 0;
+        var group_name = '';
+        var select_text = $("#host_group_id option:selected").text();
+        if (select_text != '无') {
+            group_id = $("#host_group_id option:selected").attr('id');
+            group_name = $("#host_group_id option:selected").attr('value');
+        }
+
+        var item_remark = $("#remark").val();
+
+        // 隐藏对话框
+        $("#host_modal_dialog").modal('hide');
+
+        // 更新显示
+        var ctrl_id = 'res_data_id';
+        var elems = document.getElementById('res_data_id');
+        var wrapItemElem = elems.firstElementChild;
+        while(wrapItemElem) {
+            var wrap_item_id = wrapItemElem.getAttribute('id');
+
+            if (item_id == wrap_item_id) {
+                // 修改属性
+                wrapItemElem.setAttribute('name', host_name);
+                wrapItemElem.setAttribute('status', item_status);
+                wrapItemElem.setAttribute('group_id', group_id);
+                wrapItemElem.setAttribute('group_name', group_name);
+                wrapItemElem.setAttribute('remark', item_remark);
+
+                // 修改显示
+                var cc = wrapItemElem.childNodes.length;
+
+                if (cc >= 4) {
+                    var wrapNameItemElem = wrapItemElem.childNodes[2];
+                    wrapNameItemElem.innerHTML = host_name;
+                }
+
+                break;
+            }
+
+            wrapItemElem = elems.nextElementSibling(wrapItemElem);
+        }
+
+    }
+
+</script>
+
+</html>
